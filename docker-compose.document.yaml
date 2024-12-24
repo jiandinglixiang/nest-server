@@ -2,7 +2,7 @@ services:
   maildev:
     build:
       context: .
-      dockerfile: maildev.Dockerfile
+      dockerfile: maildev.Dockerfile #电子邮件客户端
     ports:
       - ${MAIL_CLIENT_PORT}:1080
       - ${MAIL_PORT}:1025
