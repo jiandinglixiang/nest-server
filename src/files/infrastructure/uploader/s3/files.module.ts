@@ -34,6 +34,9 @@ const infrastructurePersistenceModule = DocumentFilePersistenceModule;
               infer: true,
             }),
           },
+          endpoint: configService.getOrThrow('file.minioEndpoint', {
+            infer: true,
+          }),
         });
 
         return {

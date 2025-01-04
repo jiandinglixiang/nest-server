@@ -11,4 +11,5 @@ export type FileConfig = {
   awsDefaultS3Bucket?: string;
   awsS3Region?: string;
   maxFileSize: number;
+  minioEndpoint?: string;
 };
