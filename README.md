@@ -13,15 +13,15 @@
 
 ## Description <!-- omit in toc -->
 
-NestJS REST API boilerplate for a typical project
+典型项目的 NestJS REST API 样板
 
-[Full documentation here](/docs/readme.md)
+[完整文档在这里](/docs/readme.md)
 
 Demo: <https://nestjs-boilerplate-test.herokuapp.com/docs>
 
-A fully compatible frontend boilerplate: <https://github.com/brocoders/extensive-react-boilerplate>
+完全兼容的前端样板: <https://github.com/brocoders/extensive-react-boilerplate>
 
-Belongs to the [bc boilerplates](https://bcboilerplates.com/) ecosystem
+属于 [bc 样板](https://bcboilerplates.com/) ecosystem
 
 <https://github.com/user-attachments/assets/a66f114a-c714-4036-8eeb-20cbf04ae985>
 
