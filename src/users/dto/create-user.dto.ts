@@ -1,12 +1,11 @@
 import {
   // decorators here
-  Transform,
   Type,
 } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   // decorators here
-  IsEmail,
+  IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   MinLength,
@@ -14,14 +13,12 @@ import {
 import { FileDto } from '../../files/dto/file.dto';
 import { RoleDto } from '../../roles/dto/role.dto';
 import { StatusDto } from '../../statuses/dto/status.dto';
-import { lowerCaseTransformer } from '../../utils/transformers/lower-case.transformer';
 
 export class CreateUserDto {
-  @ApiProperty({ example: 'test1@example.com', type: String })
-  @Transform(lowerCaseTransformer)
+  @ApiProperty({ example: '15577648264', type: String })
   @IsNotEmpty()
-  @IsEmail()
-  email: string | null;
+  @IsMobilePhone('zh-CN')
+  phone: string | null;
 
   @ApiProperty()
   @MinLength(6)
@@ -46,7 +43,7 @@ export class CreateUserDto {
   @ApiPropertyOptional({ type: RoleDto })
   @IsOptional()
   @Type(() => RoleDto)
-  role?: RoleDto | null;
+  role: RoleDto | null;
 
   @ApiPropertyOptional({ type: StatusDto })
   @IsOptional()

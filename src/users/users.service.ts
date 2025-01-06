@@ -9,7 +9,6 @@ import { FilterUserDto, SortUserDto } from './dto/query-user.dto';
 import { UserRepository } from './infrastructure/persistence/user.repository';
 import { User } from './domain/user';
 import bcrypt from 'bcryptjs';
-import { AuthProvidersEnum } from '../auth/auth-providers.enum';
 import { FilesService } from '../files/files.service';
 import { RoleEnum } from '../roles/roles.enum';
 import { StatusEnum } from '../statuses/statuses.enum';
@@ -37,21 +36,21 @@ export class UsersService {
       password = await bcrypt.hash(createUserDto.password, salt);
     }
 
-    let email: string | null = null;
+    let phone: string | null = null;
 
-    if (createUserDto.email) {
-      const userObject = await this.usersRepository.findByEmail(
-        createUserDto.email,
+    if (createUserDto.phone) {
+      const userObject = await this.usersRepository.findByPhone(
+        createUserDto.phone,
       );
       if (userObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            email: 'emailAlreadyExists',
+            phone: '电话已存在',
           },
         });
       }
-      email = createUserDto.email;
+      phone = createUserDto.phone;
     }
 
     let photo: FileType | null | undefined = undefined;
@@ -118,12 +117,12 @@ export class UsersService {
       // <creating-property-payload />
       firstName: createUserDto.firstName,
       lastName: createUserDto.lastName,
-      email: email,
+      phone: phone,
       password: password,
       photo: photo,
       role: role,
       status: status,
-      provider: createUserDto.provider ?? AuthProvidersEnum.email,
+      provider: createUserDto.provider ?? 'phone',
       socialId: createUserDto.socialId,
     });
   }
@@ -152,8 +151,8 @@ export class UsersService {
     return this.usersRepository.findByIds(ids);
   }
 
-  findByEmail(email: User['email']): Promise<NullableType<User>> {
-    return this.usersRepository.findByEmail(email);
+  findByPhone(phone: User['phone']): Promise<NullableType<User>> {
+    return this.usersRepository.findByPhone(phone);
   }
 
   findBySocialIdAndProvider({
@@ -187,25 +186,25 @@ export class UsersService {
       }
     }
 
-    let email: string | null | undefined = undefined;
+    let phone: string | null | undefined = undefined;
 
-    if (updateUserDto.email) {
-      const userObject = await this.usersRepository.findByEmail(
-        updateUserDto.email,
+    if (updateUserDto.phone) {
+      const userObject = await this.usersRepository.findByPhone(
+        updateUserDto.phone,
       );
 
       if (userObject && userObject.id !== id) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            email: 'emailAlreadyExists',
+            phone: '电话已存在',
           },
         });
       }
 
-      email = updateUserDto.email;
-    } else if (updateUserDto.email === null) {
-      email = null;
+      phone = updateUserDto.phone;
+    } else if (updateUserDto.phone === null) {
+      phone = null;
     }
 
     let photo: FileType | null | undefined = undefined;
@@ -272,7 +271,7 @@ export class UsersService {
       // <updating-property-payload />
       firstName: updateUserDto.firstName,
       lastName: updateUserDto.lastName,
-      email,
+      phone,
       password,
       photo,
       role,

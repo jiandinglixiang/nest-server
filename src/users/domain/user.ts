@@ -14,17 +14,17 @@ export class User {
 
   @ApiProperty({
     type: String,
-    example: 'john.doe@example.com',
+    example: '15577648264',
   })
   @Expose({ groups: ['me', 'admin'] })
-  email: string | null;
+  phone: string | null;
 
   @Exclude({ toPlainOnly: true })
   password?: string;
 
   @ApiProperty({
     type: String,
-    example: 'email',
+    example: 'phone',
   })
   @Expose({ groups: ['me', 'admin'] })
   provider: string;

@@ -15,7 +15,7 @@ export class UserSeedService {
 
   async run() {
     const admin = await this.model.findOne({
-      email: 'admin@example.com',
+      phone: '15577648263',
     });
 
     if (!admin) {
@@ -23,7 +23,7 @@ export class UserSeedService {
       const password = await bcrypt.hash('secret', salt);
 
       const data = new this.model({
-        email: 'admin@example.com',
+        phone: '15577648264',
         password: password,
         firstName: 'Super',
         lastName: 'Admin',
@@ -38,7 +38,7 @@ export class UserSeedService {
     }
 
     const user = await this.model.findOne({
-      email: 'john.doe@example.com',
+      phone: '15577648264',
     });
 
     if (!user) {
@@ -46,7 +46,7 @@ export class UserSeedService {
       const password = await bcrypt.hash('secret', salt);
 
       const data = new this.model({
-        email: 'john.doe@example.com',
+        phone: '15577648264',
         password: password,
         firstName: 'John',
         lastName: 'Doe',

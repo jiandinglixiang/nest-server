@@ -60,4 +60,5 @@ async function bootstrap() {
   // 启动应用并监听指定端口 获取配置值（自定义配置或进程环境变量） 基于属性路径（您可以使用点表示法遍历嵌套对象，例如“database.host”）。
   await app.listen(configService.getOrThrow('app.port', { infer: true }));
 }
+
 void bootstrap();

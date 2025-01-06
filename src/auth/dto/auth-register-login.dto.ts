@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { lowerCaseTransformer } from '../../utils/transformers/lower-case.transformer';
+import { IsMobilePhone, IsNotEmpty, Length, MinLength } from 'class-validator';
+import { RoleEnum } from '../../roles/roles.enum';
 
 export class AuthRegisterLoginDto {
-  @ApiProperty({ example: 'test1@example.com', type: String })
-  @Transform(lowerCaseTransformer)
-  @IsEmail()
-  email: string;
+  @ApiProperty({ example: '15577648264', type: String })
+  @IsMobilePhone('zh-CN')
+  @IsNotEmpty()
+  @Length(11)
+  phone: string;
 
   @ApiProperty()
   @MinLength(6)
@@ -20,4 +20,8 @@ export class AuthRegisterLoginDto {
   @ApiProperty({ example: 'Doe' })
   @IsNotEmpty()
   lastName: string;
+
+  @ApiProperty({ example: RoleEnum.admin })
+  @IsNotEmpty()
+  role: RoleEnum;
 }

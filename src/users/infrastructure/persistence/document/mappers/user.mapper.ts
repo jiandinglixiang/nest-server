@@ -11,7 +11,7 @@ export class UserMapper {
   static toDomain(raw: UserSchemaClass): User {
     const domainEntity = new User();
     domainEntity.id = raw._id.toString();
-    domainEntity.email = raw.email;
+    domainEntity.phone = raw.phone;
     domainEntity.password = raw.password;
     domainEntity.provider = raw.provider;
     domainEntity.socialId = raw.socialId;
@@ -67,7 +67,7 @@ export class UserMapper {
     if (domainEntity.id && typeof domainEntity.id === 'string') {
       persistenceSchema._id = domainEntity.id;
     }
-    persistenceSchema.email = domainEntity.email;
+    persistenceSchema.phone = domainEntity.phone;
     persistenceSchema.password = domainEntity.password;
     persistenceSchema.provider = domainEntity.provider;
     persistenceSchema.socialId = domainEntity.socialId;

@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { now, HydratedDocument } from 'mongoose';
 
-import { AuthProvidersEnum } from '../../../../../auth/auth-providers.enum';
 import { FileSchemaClass } from '../../../../../files/infrastructure/persistence/document/entities/file.schema';
 import { EntityDocumentHelper } from '../../../../../utils/document-entity-helper';
 import { StatusSchema } from '../../../../../statuses/infrastructure/persistence/document/entities/status.schema';
@@ -21,13 +20,13 @@ export class UserSchemaClass extends EntityDocumentHelper {
     type: String,
     unique: true,
   })
-  email: string | null;
+  phone: string | null;
 
   @Prop()
   password?: string;
 
   @Prop({
-    default: AuthProvidersEnum.email,
+    default: 'phone',
   })
   provider: string;
 

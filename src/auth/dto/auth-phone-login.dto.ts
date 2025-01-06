@@ -1,9 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsMobilePhone } from 'class-validator';
+import { IsMobilePhone, IsNotEmpty } from 'class-validator';
 
-export class AuthForgotPasswordDto {
+export class AuthPhoneLoginDto {
   @ApiProperty({ example: '15577648264', type: String })
   @IsNotEmpty()
   @IsMobilePhone('zh-CN')
   phone: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  password: string;
 }
