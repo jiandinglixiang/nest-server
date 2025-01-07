@@ -22,3 +22,4 @@ import { MongooseConfigService } from '../../mongoose-config.service';
   ],
 })
 export class SeedModule {}
+// SeedModule用于配置初始化-种子数据模块，包括用户种子模块、配置模块和Mongoose数据库连接模块。

@@ -11,3 +11,4 @@ const infrastructurePersistenceModule = DocumentSessionPersistenceModule;
   exports: [SessionService, infrastructurePersistenceModule],
 })
 export class SessionModule {}
+// SessionModule用于管理会话相关的功能，包括会话的持久化和服务提供。

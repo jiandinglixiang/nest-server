@@ -19,3 +19,4 @@ const infrastructurePersistenceModule = DocumentUserPersistenceModule;
   exports: [UsersService, infrastructurePersistenceModule],
 })
 export class UsersModule {}
+// 该模块用于管理用户相关的控制器、服务和持久化模块的导入和导出。
