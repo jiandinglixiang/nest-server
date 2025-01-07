@@ -40,7 +40,7 @@ export class AuthController {
     type: LoginResponseDto,
   })
   @HttpCode(HttpStatus.OK)
-  public login(@Body() loginDto: AuthPhoneLoginDto): Promise<LoginResponseDto> {
+  login(@Body() loginDto: AuthPhoneLoginDto): Promise<LoginResponseDto> {
     return this.service.validateLogin(loginDto);
   }
 
@@ -68,20 +68,6 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @SerializeOptions({
-    groups: ['me'],
-  })
-  @Get('me')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOkResponse({
-    type: User,
-  })
-  @HttpCode(HttpStatus.OK)
-  public me(@Request() request): Promise<NullableType<User>> {
-    return this.service.me(request.user);
-  }
-
-  @ApiBearerAuth()
   @ApiOkResponse({
     type: RefreshResponseDto,
   })
@@ -91,7 +77,7 @@ export class AuthController {
   @Post('refresh')
   @UseGuards(AuthGuard('jwt-refresh'))
   @HttpCode(HttpStatus.OK)
-  public refresh(@Request() request): Promise<RefreshResponseDto> {
+  refresh(@Request() request): Promise<RefreshResponseDto> {
     return this.service.refreshToken({
       sessionId: request.user.sessionId,
       hash: request.user.hash,
@@ -102,10 +88,24 @@ export class AuthController {
   @Post('logout')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async logout(@Request() request): Promise<void> {
+  async logout(@Request() request): Promise<void> {
     await this.service.logout({
       sessionId: request.user.sessionId,
     });
+  }
+
+  @ApiBearerAuth()
+  @SerializeOptions({
+    groups: ['me'],
+  })
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOkResponse({
+    type: User,
+  })
+  @HttpCode(HttpStatus.OK)
+  me(@Request() request): Promise<NullableType<User>> {
+    return this.service.me(request.user);
   }
 
   @ApiBearerAuth()
@@ -118,7 +118,7 @@ export class AuthController {
   @ApiOkResponse({
     type: User,
   })
-  public update(
+  update(
     @Request() request,
     @Body() userDto: AuthUpdateDto,
   ): Promise<NullableType<User>> {
@@ -129,7 +129,7 @@ export class AuthController {
   @Delete('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)
-  public async delete(@Request() request): Promise<void> {
+  async delete(@Request() request): Promise<void> {
     return this.service.softDelete(request.user);
   }
 }
