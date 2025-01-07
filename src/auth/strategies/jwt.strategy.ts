@@ -15,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  // Why we don't check if the user exists in the database:
+  // 为什么我们不检查用户是否存在于数据库中:
   // https://github.com/brocoders/nestjs-boilerplate/blob/main/docs/auth.md#about-jwt-strategy
   public validate(payload: JwtPayloadType): OrNeverType<JwtPayloadType> {
     if (!payload.id) {
