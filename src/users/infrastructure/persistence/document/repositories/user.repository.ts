@@ -1,3 +1,4 @@
+import { Password } from './../../../../domain/passwword';
 import { Injectable } from '@nestjs/common';
 
 import { NullableType } from '../../../../../utils/types/nullable.type';
@@ -117,11 +118,19 @@ export class UsersDocumentRepository implements UserRepository {
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
-  async remove(id: User['id']): Promise<void> {
+  async remove(userID: User['userID']): Promise<void> {
     await this.usersModel.deleteOne({
-      _id: id.toString(),
+      _id: userID,
+    });
+    await this.passwordsModel.deleteOne({
+      userID: userID,
     });
   }
+
+  async updatePassword(
+    userID: User['userID'],
+    payload: Partial<Password>,
+  ): Promise<Password | null> {}
 }
 
 // 重写方法
