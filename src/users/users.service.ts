@@ -17,15 +17,18 @@ import { FileType } from '../files/domain/file';
 import { Role } from '../roles/domain/role';
 import { Status } from '../statuses/domain/status';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserLogsService } from '../user-logs/user-logs.service';
+import { Request } from 'express';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UserRepository,
     private readonly filesService: FilesService,
+    private readonly userLogsService: UserLogsService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto, request: Request): Promise<User> {
     // Do not remove comment below.
     // <creating-property />
 
@@ -112,9 +115,10 @@ export class UsersService {
       };
     }
 
-    return this.usersRepository.create({
+    const user = {
       // Do not remove comment below.
       // <creating-property-payload />
+      demo1: createUserDto.demo1,
       firstName: createUserDto.firstName,
       lastName: createUserDto.lastName,
       phone: phone,
@@ -124,7 +128,19 @@ export class UsersService {
       status: status,
       provider: createUserDto.provider ?? 'phone',
       socialId: createUserDto.socialId,
-    });
+    };
+
+    const newUser = await this.usersRepository.create(user);
+
+    // 记录用户注册
+    await this.userLogsService.logUserActivity(
+      newUser.id,
+      'REGISTER',
+      request,
+      `User registered with email: ${newUser.email}`,
+    );
+
+    return newUser;
   }
 
   findManyWithPagination({
@@ -269,6 +285,8 @@ export class UsersService {
     return this.usersRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+      demo1: updateUserDto.demo1,
+
       firstName: updateUserDto.firstName,
       lastName: updateUserDto.lastName,
       phone,

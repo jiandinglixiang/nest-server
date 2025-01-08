@@ -1,74 +1,87 @@
-import { Exclude, Expose } from 'class-transformer';
-import { FileType } from '../../files/domain/file';
 import { Role } from '../../roles/domain/role';
-import { Status } from '../../statuses/domain/status';
 import { ApiProperty } from '@nestjs/swagger';
-
-const idType = String;
+import { Exclude } from 'class-transformer';
 
 export class User {
   @ApiProperty({
-    type: idType,
+    type: String,
+    description: 'User ID',
   })
-  id: number | string;
+  userID: string;
 
   @ApiProperty({
     type: String,
-    example: '15577648264',
+    description: 'Account',
   })
-  @Expose({ groups: ['me', 'admin'] })
-  phone: string | null;
+  account: string;
 
+  @ApiProperty({
+    type: String,
+    description: 'Phone Number',
+  })
+  phoneNumber: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Area Code',
+    default: '86',
+  })
+  areaCode: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Email',
+  })
+  email: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Nickname',
+  })
+  nickname: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Face URL',
+  })
+  faceUrl: string;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Gender',
+    enum: [0, 1],
+    default: 0,
+  })
+  gender: number;
+
+  @ApiProperty({
+    type: Date,
+    description: 'Create Time',
+  })
+  createTime: Date;
+
+  @ApiProperty({
+    type: Date,
+    description: 'Change Time',
+  })
+  changeTime: Date;
+
+  @ApiProperty({
+    type: Date,
+    description: 'Birth Time',
+  })
+  birthTime: Date;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Level',
+  })
+  level: number;
+
+  @ApiProperty({
+    type: Role,
+    description: 'Role',
+  })
   @Exclude({ toPlainOnly: true })
-  password?: string;
-
-  @ApiProperty({
-    type: String,
-    example: 'phone',
-  })
-  @Expose({ groups: ['me', 'admin'] })
-  provider: string;
-
-  @ApiProperty({
-    type: String,
-    example: '1234567890',
-  })
-  @Expose({ groups: ['me', 'admin'] })
-  socialId?: string | null;
-
-  @ApiProperty({
-    type: String,
-    example: 'John',
-  })
-  firstName: string | null;
-
-  @ApiProperty({
-    type: String,
-    example: 'Doe',
-  })
-  lastName: string | null;
-
-  @ApiProperty({
-    type: () => FileType,
-  })
-  photo?: FileType | null;
-
-  @ApiProperty({
-    type: () => Role,
-  })
-  role?: Role | null;
-
-  @ApiProperty({
-    type: () => Status,
-  })
-  status?: Status;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-
-  @ApiProperty()
-  deletedAt: Date;
+  role: Role;
 }

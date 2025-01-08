@@ -1,9 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { now, HydratedDocument } from 'mongoose';
 
-import { FileSchemaClass } from '../../../../../files/infrastructure/persistence/document/entities/file.schema';
 import { EntityDocumentHelper } from '../../../../../utils/document-entity-helper';
-import { StatusSchema } from '../../../../../statuses/infrastructure/persistence/document/entities/status.schema';
 import { RoleSchema } from '../../../../../roles/infrastructure/persistence/document/entities/role.schema';
 
 export type UserSchemaDocument = HydratedDocument<UserSchemaClass>;
@@ -16,59 +14,41 @@ export type UserSchemaDocument = HydratedDocument<UserSchemaClass>;
   },
 })
 export class UserSchemaClass extends EntityDocumentHelper {
-  @Prop({
-    type: String,
-    unique: true,
-  })
-  phone: string | null;
+  @Prop({ type: String, required: true })
+  account: string;
 
-  @Prop()
-  password?: string;
+  @Prop({ type: String, required: true })
+  phoneNumber: string;
 
-  @Prop({
-    default: 'phone',
-  })
-  provider: string;
+  @Prop({ type: String, required: true, default: '86' })
+  areaCode: string;
 
-  @Prop({
-    type: String,
-    default: null,
-  })
-  socialId?: string | null;
+  @Prop({ type: String })
+  email: string;
 
-  @Prop({
-    type: String,
-  })
-  firstName: string | null;
+  @Prop({ type: String })
+  nickname: string;
 
-  @Prop({
-    type: String,
-  })
-  lastName: string | null;
+  @Prop({ type: String })
+  faceUrl: string;
 
-  @Prop({
-    type: FileSchemaClass,
-  })
-  photo?: FileSchemaClass | null;
+  @Prop({ type: Number, enum: [0, 1], default: 0 })
+  gender: number;
 
-  @Prop({
-    type: RoleSchema,
-  })
-  role?: RoleSchema | null;
+  @Prop({ type: Date, default: now })
+  createTime: Date;
 
-  @Prop({
-    type: StatusSchema,
-  })
-  status?: StatusSchema;
+  @Prop({ type: Date, default: now })
+  changeTime: Date;
 
-  @Prop({ default: now })
-  createdAt: Date;
+  @Prop({ type: Date })
+  birthTime: Date;
 
-  @Prop({ default: now })
-  updatedAt: Date;
+  @Prop({ type: Number })
+  level: number;
 
-  @Prop()
-  deletedAt: Date;
+  @Prop({ type: RoleSchema })
+  role: RoleSchema;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserSchemaClass);

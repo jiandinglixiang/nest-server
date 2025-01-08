@@ -9,12 +9,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { UserMapper } from '../mappers/user.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { PasswordSchemaClass } from '../entities/password.schema';
 
 @Injectable()
 export class UsersDocumentRepository implements UserRepository {
   constructor(
     @InjectModel(UserSchemaClass.name)
     private readonly usersModel: Model<UserSchemaClass>,
+    private readonly passwordsModel: Model<PasswordSchemaClass>,
   ) {}
 
   async create(data: User): Promise<User> {
@@ -121,3 +123,7 @@ export class UsersDocumentRepository implements UserRepository {
     });
   }
 }
+
+// 重写方法
+// 对user的增删查改
+// 对password的增删查改

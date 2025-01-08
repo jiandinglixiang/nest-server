@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema, UserSchemaClass } from './entities/user.schema';
+import {
+  PasswordSchema,
+  PasswordSchemaClass,
+} from './entities/password.schema';
 import { UserRepository } from '../user.repository';
 import { UsersDocumentRepository } from './repositories/user.repository';
 
@@ -8,6 +12,7 @@ import { UsersDocumentRepository } from './repositories/user.repository';
   imports: [
     MongooseModule.forFeature([
       { name: UserSchemaClass.name, schema: UserSchema },
+      { name: PasswordSchemaClass.name, schema: PasswordSchema },
     ]),
   ],
   providers: [

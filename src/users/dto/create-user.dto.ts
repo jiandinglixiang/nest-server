@@ -9,12 +9,20 @@ import {
   IsNotEmpty,
   IsOptional,
   MinLength,
+  IsString,
 } from 'class-validator';
 import { FileDto } from '../../files/dto/file.dto';
 import { RoleDto } from '../../roles/dto/role.dto';
 import { StatusDto } from '../../statuses/dto/status.dto';
 
 export class CreateUserDto {
+  @ApiProperty({
+    required: true,
+    type: () => String,
+  })
+  @IsString()
+  demo1: string;
+
   @ApiProperty({ example: '15577648264', type: String })
   @IsNotEmpty()
   @IsMobilePhone('zh-CN')

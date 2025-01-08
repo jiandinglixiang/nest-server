@@ -11,6 +11,7 @@ import {
   HttpStatus,
   HttpCode,
   SerializeOptions,
+  Req,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -35,6 +36,7 @@ import { User } from './domain/user';
 import { UsersService } from './users.service';
 import { RolesGuard } from '../roles/roles.guard';
 import { infinityPagination } from '../utils/infinity-pagination';
+import { Request } from 'express';
 
 // 使用@ApiBearerAuth装饰器来启用Bearer认证
 @ApiBearerAuth()
@@ -56,6 +58,7 @@ export class UsersController {
   // 使用@ApiCreatedResponse装饰器来定义创建用户成功的响应
   @ApiCreatedResponse({
     type: User,
+    description: '用户已创建',
   })
   // 使用@SerializeOptions装饰器来指定序列化选项
   @SerializeOptions({
@@ -65,9 +68,12 @@ export class UsersController {
   @Post()
   // 设置HTTP状态码为201（已创建）
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createProfileDto: CreateUserDto): Promise<User> {
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @Req() request: Request,
+  ): Promise<User> {
     // 调用UsersService的create方法来创建用户
-    return this.usersService.create(createProfileDto);
+    return this.usersService.create(createUserDto, request);
   }
 
   // 使用@ApiOkResponse装饰器来定义获取用户列表成功的响应

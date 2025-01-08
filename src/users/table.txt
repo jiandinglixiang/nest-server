@@ -1,0 +1,105 @@
+// 用户密码账号表
+export interface Account {
+    user_id: string;
+    password: string;
+    create_time: Date;
+    change_time: Date;
+    operator_user_id: string;
+}
+
+// 用户属性表
+export interface Attribute {
+    user_id: string;
+    account: string;
+    phone_number: string;
+    area_code: string;
+    email: string;
+    nickname: string;
+    face_url: string;
+    gender: number;
+    create_time: Date;
+    change_time: Date;
+    birth_time: Date;
+    level: number;
+    role: string;
+}
+
+// 用户凭证表
+export interface Credential {
+    user_id: string;
+    account: string;
+    type: number;
+    allow_change: boolean;
+}
+
+// 用户注册表
+export interface Register {
+    user_id: string;
+    device_id: string;
+    ip: string;
+    platform: string;
+    account_type: string;
+    mode: string;
+    create_time: Date;
+}
+
+// 用户登录记录表
+export interface UserLoginRecord {
+    user_id: string;
+    login_time: Date;
+    ip: string;
+    device_id: string;
+    platform: string;
+}
+
+// 验证码表
+export interface VerifyCode {
+    id: string;
+    account: string;
+    platform: string;
+    code: string;
+    duration: number;
+    count: number;
+    used: boolean;
+    create_time: Date;
+}
+
+// 邀请注册表
+export interface InvitationRegister {
+    invitation_code: string;
+    used_by_user_id: string;
+    create_time: Date;
+}
+
+// 客户端配置表
+export interface ClientConfig {
+    key: string;
+    value: string;
+}
+
+// 注册时添加好友表
+export interface RegisterAddFriend {
+    user_id: string;
+    create_time: Date;
+}
+
+// 应用版本表
+export interface Application {
+    id: string;
+    platform: string;
+    hot: boolean;
+    version: string;
+    url: string;
+    text: string;
+    force: boolean;
+    latest: boolean;
+    create_time: Date;
+}
+
+// 禁用账号表
+export interface ForbiddenAccount {
+    user_id: string;
+    reason: string;
+    operator_user_id: string;
+    create_time: Date;
+}
