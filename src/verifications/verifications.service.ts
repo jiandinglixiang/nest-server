@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateverificationDto } from './dto/create-verification.dto';
-import { UpdateverificationDto } from './dto/update-verification.dto';
-import { verificationRepository } from './infrastructure/persistence/verification.repository';
+import { CreateverificationDto } from './dto-传输数据模型/create-verification.dto';
+import { UpdateverificationDto } from './dto-传输数据模型/update-verification.dto';
+import { verificationRepository } from './infrastructure-基础设施/persistence-持久化/verification.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
-import { verification } from './domain/verification';
+import { verification } from './domain-领域数据模型/verification';
 
 @Injectable()
 export class verificationsService {

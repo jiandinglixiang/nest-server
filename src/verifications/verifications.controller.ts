@@ -10,8 +10,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { verificationsService } from './verifications.service';
-import { CreateverificationDto } from './dto/create-verification.dto';
-import { UpdateverificationDto } from './dto/update-verification.dto';
+import { CreateverificationDto } from './dto-传输数据模型/create-verification.dto';
+import { UpdateverificationDto } from './dto-传输数据模型/update-verification.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -19,14 +19,14 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { verification } from './domain/verification';
+import { verification } from './domain-领域数据模型/verification';
 import { AuthGuard } from '@nestjs/passport';
 import {
   InfinityPaginationResponse,
   InfinityPaginationResponseDto,
 } from '../utils/dto/infinity-pagination-response.dto';
 import { infinityPagination } from '../utils/infinity-pagination';
-import { FindAllverificationsDto } from './dto/find-all-verifications.dto';
+import { FindAllverificationsDto } from './dto-传输数据模型/find-all-verifications.dto';
 
 @ApiTags('Verifications')
 @ApiBearerAuth()

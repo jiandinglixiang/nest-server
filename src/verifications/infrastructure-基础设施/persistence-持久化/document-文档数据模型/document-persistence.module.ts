@@ -3,9 +3,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   verificationSchema,
   verificationSchemaClass,
-} from './entities/verification.schema';
+} from './entities-实体数据模型/verification.schema';
 import { verificationRepository } from '../verification.repository';
-import { verificationDocumentRepository } from './repositories/verification.repository';
+import { verificationDocumentRepository } from './repositories-仓库操作/verification.repository';
 
 @Module({
   imports: [

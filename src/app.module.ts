@@ -16,8 +16,6 @@ const infrastructureDatabaseModule = MongooseModule.forRootAsync({
   useClass: MongooseConfigService,
 });
 
-import { verificationsModule } from './verifications/verifications.module';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -26,7 +24,6 @@ import { verificationsModule } from './verifications/verifications.module';
       envFilePath: ['.env'],
     }),
     infrastructureDatabaseModule,
-    verificationsModule,
     UsersModule,
     FilesModule,
     AuthModule,
