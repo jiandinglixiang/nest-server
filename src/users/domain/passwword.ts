@@ -27,12 +27,12 @@ export class Password {
     description: 'Creation Time',
     example: '2023-01-01T00:00:00Z',
   })
-  createTime: Date;
+  createdAt: Date;
 
   @ApiProperty({
     type: Date,
-    description: 'Change Time',
+    description: 'updatedAt Time',
     example: '2023-01-02T00:00:00Z',
   })
-  changeTime: Date;
+  updatedAt: Date;
 }

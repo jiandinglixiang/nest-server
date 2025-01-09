@@ -21,10 +21,10 @@ export class PasswordSchemaClass {
   operatorUserID: string;
 
   @Prop({ type: Date, default: now })
-  createTime: Date;
+  createdAt: Date;
 
   @Prop({ type: Date })
-  changeTime: Date;
+  updatedAt: Date;
 }
 
 export const PasswordSchema = SchemaFactory.createForClass(PasswordSchemaClass);

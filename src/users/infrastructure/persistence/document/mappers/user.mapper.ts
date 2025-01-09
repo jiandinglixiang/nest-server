@@ -20,8 +20,8 @@ export class UserMapper {
     domainEntity.nickname = raw.nickname;
     domainEntity.faceUrl = raw.faceUrl;
     domainEntity.gender = raw.gender;
-    domainEntity.createTime = raw.createTime;
-    domainEntity.changeTime = raw.changeTime;
+    domainEntity.createdAt = raw.createdAt;
+    domainEntity.updatedAt = raw.updatedAt;
     domainEntity.birthTime = raw.birthTime;
     domainEntity.level = raw.level;
     return domainEntity;
@@ -44,8 +44,8 @@ export class UserMapper {
     persistenceSchema.nickname = domainEntity.nickname;
     persistenceSchema.faceUrl = domainEntity.faceUrl;
     persistenceSchema.gender = domainEntity.gender;
-    persistenceSchema.createTime = domainEntity.createTime;
-    persistenceSchema.changeTime = domainEntity.changeTime;
+    persistenceSchema.createdAt = domainEntity.createdAt;
+    persistenceSchema.updatedAt = domainEntity.updatedAt;
     persistenceSchema.birthTime = domainEntity.birthTime;
     persistenceSchema.level = domainEntity.level;
     return persistenceSchema;

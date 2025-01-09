@@ -1,16 +1,15 @@
-import { Password } from './../../../../domain/passwword';
 import { Injectable } from '@nestjs/common';
 
-import { NullableType } from '../../../../../utils/types/nullable.type';
-import { FilterUserDto, SortUserDto } from '../../../../dto/query-user.dto';
-import { User } from '../../../../domain/user';
-import { UserRepository } from '../../user.repository';
-import { UserSchemaClass } from '../entities/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { UserMapper } from '../mappers/user.mapper';
+import { NullableType } from '../../../../../utils/types/nullable.type';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { User } from '../../../../domain/user';
+import { FilterUserDto, SortUserDto } from '../../../../dto/query-user.dto';
+import { UserRepository } from '../../user.repository';
 import { PasswordSchemaClass } from '../entities/password.schema';
+import { UserSchemaClass } from '../entities/user.schema';
+import { UserMapper } from '../mappers/user.mapper';
 
 @Injectable()
 export class UsersDocumentRepository implements UserRepository {
@@ -49,7 +48,7 @@ export class UsersDocumentRepository implements UserRepository {
         sortOptions?.reduce(
           (accumulator, sort) => ({
             ...accumulator,
-            [sort.orderBy === 'id' ? '_id' : sort.orderBy]:
+            [sort.orderBy === 'userID' ? '_id' : sort.orderBy]:
               sort.order.toUpperCase() === 'ASC' ? 1 : -1,
           }),
           {},
@@ -61,45 +60,33 @@ export class UsersDocumentRepository implements UserRepository {
     return userObjects.map((userObject) => UserMapper.toDomain(userObject));
   }
 
-  async findById(id: User['id']): Promise<NullableType<User>> {
-    const userObject = await this.usersModel.findById(id);
+  async findById(userID: User['userID']): Promise<NullableType<User>> {
+    const userObject = await this.usersModel.findById(userID);
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
-  async findByIds(ids: User['id'][]): Promise<User[]> {
-    const userObjects = await this.usersModel.find({ _id: { $in: ids } });
+  async findByIds(userIDs: User['userID'][]): Promise<User[]> {
+    const userObjects = await this.usersModel.find({ _id: { $in: userIDs } });
     return userObjects.map((userObject) => UserMapper.toDomain(userObject));
   }
 
-  async findByPhone(phone: User['phone']): Promise<NullableType<User>> {
-    if (!phone) return null;
+  async findByPhone(
+    phoneNumber: User['phoneNumber'],
+  ): Promise<NullableType<User>> {
+    if (!phoneNumber) return null;
 
-    const userObject = await this.usersModel.findOne({ phone });
+    const userObject = await this.usersModel.findOne({ phoneNumber });
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
-  async findBySocialIdAndProvider({
-    socialId,
-    provider,
-  }: {
-    socialId: User['socialId'];
-    provider: User['provider'];
-  }): Promise<NullableType<User>> {
-    if (!socialId || !provider) return null;
-
-    const userObject = await this.usersModel.findOne({
-      socialId,
-      provider,
-    });
-
-    return userObject ? UserMapper.toDomain(userObject) : null;
-  }
-
-  async update(id: User['id'], payload: Partial<User>): Promise<User | null> {
+  async update(
+    userID: User['userID'],
+    payload: Partial<User>,
+  ): Promise<User | null> {
     const clonedPayload = { ...payload };
-    delete clonedPayload.id;
+    delete clonedPayload.userID;
 
-    const filter = { _id: id.toString() };
+    const filter = { _id: userID };
     const user = await this.usersModel.findOne(filter);
 
     if (!user) {
@@ -122,17 +109,5 @@ export class UsersDocumentRepository implements UserRepository {
     await this.usersModel.deleteOne({
       _id: userID,
     });
-    await this.passwordsModel.deleteOne({
-      userID: userID,
-    });
   }
-
-  async updatePassword(
-    userID: User['userID'],
-    payload: Partial<Password>,
-  ): Promise<Password | null> {}
 }
-
-// 重写方法
-// 对user的增删查改
-// 对password的增删查改

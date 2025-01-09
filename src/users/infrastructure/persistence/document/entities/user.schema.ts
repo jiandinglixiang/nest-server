@@ -35,12 +35,6 @@ export class UserSchemaClass extends EntityDocumentHelper {
   @Prop({ type: Number, enum: [0, 1], default: 0 })
   gender: number;
 
-  @Prop({ type: Date, default: now })
-  createTime: Date;
-
-  @Prop({ type: Date, default: now })
-  changeTime: Date;
-
   @Prop({ type: Date })
   birthTime: Date;
 
@@ -49,6 +43,12 @@ export class UserSchemaClass extends EntityDocumentHelper {
 
   @Prop({ type: RoleSchema })
   role: RoleSchema;
+
+  @Prop({ type: Date, default: now })
+  createdAt: Date;
+
+  @Prop({ type: Date })
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserSchemaClass);

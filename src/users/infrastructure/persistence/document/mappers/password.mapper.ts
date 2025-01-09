@@ -1,14 +1,14 @@
 import { PasswordSchemaClass } from '../entities/password.schema';
 import { Password } from '../../../../domain/passwword';
 
-export class UserMapper {
+export class PasswordMapper {
   static toDomain(raw: PasswordSchemaClass): Password {
     const domainEntity = new Password();
     domainEntity.userID = raw.userID;
     domainEntity.password = raw.password;
     domainEntity.operatorUserID = raw.operatorUserID;
-    domainEntity.createTime = raw.createTime;
-    domainEntity.changeTime = raw.changeTime;
+    domainEntity.createdAt = raw.createdAt;
+    domainEntity.updatedAt = raw.updatedAt;
     return domainEntity;
   }
 
@@ -17,8 +17,8 @@ export class UserMapper {
     persistenceSchema.userID = domainEntity.userID;
     persistenceSchema.password = domainEntity.password;
     persistenceSchema.operatorUserID = domainEntity.operatorUserID;
-    persistenceSchema.createTime = domainEntity.createTime;
-    persistenceSchema.changeTime = domainEntity.changeTime;
+    persistenceSchema.createdAt = domainEntity.createdAt;
+    persistenceSchema.updatedAt = domainEntity.updatedAt;
     return persistenceSchema;
   }
 }

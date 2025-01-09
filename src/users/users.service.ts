@@ -17,7 +17,6 @@ import { FileType } from '../files/domain/file';
 import { Role } from '../roles/domain/role';
 import { Status } from '../statuses/domain/status';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserLogsService } from '../user-logs/user-logs.service';
 import { Request } from 'express';
 
 @Injectable()
@@ -25,7 +24,6 @@ export class UsersService {
   constructor(
     private readonly usersRepository: UserRepository,
     private readonly filesService: FilesService,
-    private readonly userLogsService: UserLogsService,
   ) {}
 
   async create(createUserDto: CreateUserDto, request: Request): Promise<User> {
@@ -34,6 +32,10 @@ export class UsersService {
 
     let password: string | undefined = undefined;
 
+    // 如果提供了密码，需要对密码进行加密处理
+    // 使用 bcryptjs 生成盐值
+    // 然后将密码和盐值进行加密
+    // 最后将加密后的字符串存储到数据中
     if (createUserDto.password) {
       const salt = await bcrypt.genSalt();
       password = await bcrypt.hash(createUserDto.password, salt);
@@ -169,19 +171,6 @@ export class UsersService {
 
   findByPhone(phone: User['phone']): Promise<NullableType<User>> {
     return this.usersRepository.findByPhone(phone);
-  }
-
-  findBySocialIdAndProvider({
-    socialId,
-    provider,
-  }: {
-    socialId: User['socialId'];
-    provider: User['provider'];
-  }): Promise<NullableType<User>> {
-    return this.usersRepository.findBySocialIdAndProvider({
-      socialId,
-      provider,
-    });
   }
 
   async update(

@@ -56,18 +56,6 @@ export class User {
 
   @ApiProperty({
     type: Date,
-    description: 'Create Time',
-  })
-  createTime: Date;
-
-  @ApiProperty({
-    type: Date,
-    description: 'Change Time',
-  })
-  changeTime: Date;
-
-  @ApiProperty({
-    type: Date,
     description: 'Birth Time',
   })
   birthTime: Date;
@@ -84,4 +72,18 @@ export class User {
   })
   @Exclude({ toPlainOnly: true })
   role: Role;
+
+  @ApiProperty({
+    type: Date,
+    description: 'Creation Time',
+    example: '2023-01-01T00:00:00Z',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    type: Date,
+    description: 'updatedAt Time',
+    example: '2023-01-02T00:00:00Z',
+  })
+  updatedAt: Date;
 }

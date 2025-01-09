@@ -7,6 +7,8 @@ import {
 } from './entities/password.schema';
 import { UserRepository } from '../user.repository';
 import { UsersDocumentRepository } from './repositories/user.repository';
+import { PasswordRepository } from '../password.repository';
+import { PasswordDocumentRepository } from './repositories/password.repository';
 
 @Module({
   imports: [
@@ -20,7 +22,11 @@ import { UsersDocumentRepository } from './repositories/user.repository';
       provide: UserRepository,
       useClass: UsersDocumentRepository,
     },
+    {
+      provide: PasswordRepository,
+      useClass: PasswordDocumentRepository,
+    },
   ],
-  exports: [UserRepository],
+  exports: [UserRepository, PasswordRepository],
 })
 export class DocumentUserPersistenceModule {}
