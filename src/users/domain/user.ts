@@ -1,19 +1,15 @@
 import { Role } from '../../roles/domain/role';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { Allow } from 'class-validator';
 
 export class User {
   @ApiProperty({
     type: String,
-    description: 'User ID',
+    example: 'cbcfa8b8-3a25-4adb-a9c6-e325f0d0f3ae',
   })
-  userID: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Account',
-  })
-  account: string;
+  @Allow()
+  id: string;
 
   @ApiProperty({
     type: String,

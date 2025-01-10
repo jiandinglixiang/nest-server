@@ -14,13 +14,10 @@ export type UserSchemaDocument = HydratedDocument<UserSchemaClass>;
   },
 })
 export class UserSchemaClass extends EntityDocumentHelper {
-  @Prop({ type: String, required: true })
-  account: string;
-
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   phoneNumber: string;
 
-  @Prop({ type: String, required: true, default: '86' })
+  @Prop({ type: String })
   areaCode: string;
 
   @Prop({ type: String })
@@ -32,7 +29,7 @@ export class UserSchemaClass extends EntityDocumentHelper {
   @Prop({ type: String })
   faceUrl: string;
 
-  @Prop({ type: Number, enum: [0, 1], default: 0 })
+  @Prop({ type: Number })
   gender: number;
 
   @Prop({ type: Date })

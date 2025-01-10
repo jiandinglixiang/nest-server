@@ -1,13 +1,14 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
-  // decorators here
-  Type,
-} from 'class-transformer';
-import {
+  Equals,
+  IsDate,
   IsEmail,
-  // decorators here
+  IsEnum,
   IsMobilePhone,
   IsNotEmpty,
+  IsNumber,
+  IsOptional,
   IsUrl,
   Length,
 } from 'class-validator';
@@ -16,74 +17,73 @@ import { RoleDto } from '../../roles/dto/role.dto';
 export class CreateUserDto {
   @ApiProperty({
     type: String,
-    description: 'Account',
-    minLength: 1,
-    maxLength: 50,
-  })
-  @IsNotEmpty()
-  account: string;
-
-  @ApiProperty({
-    type: String,
     description: 'Phone Number',
-    minLength: 11,
-    maxLength: 11,
+    example: '15577648264',
   })
   @IsMobilePhone('zh-CN')
+  @IsNotEmpty()
   phoneNumber: string;
 
   @ApiProperty({
     type: String,
     description: 'Area Code',
-    default: '86',
+    example: '86',
   })
+  @Equals('86')
   areaCode: '86';
 
   @ApiProperty({
     type: String,
     description: 'Email',
+    example: 'test@example.com',
   })
   @IsEmail()
-  email?: string;
+  @IsOptional()
+  email: string;
 
   @ApiProperty({
     type: String,
     description: 'Nickname',
   })
   @Length(2, 10)
+  @IsOptional()
   nickname: string;
 
   @ApiProperty({
     type: String,
     description: 'Face URL',
-    minLength: 1,
-    maxLength: 255,
   })
   @IsUrl()
+  @IsOptional()
   faceUrl: string;
 
   @ApiProperty({
     type: Number,
     description: 'Gender',
     enum: [0, 1],
-    default: 0,
   })
-  @IsNotEmpty()
+  @IsEnum([0, 1])
+  @IsOptional()
   gender: 0 | 1;
 
   @ApiProperty({
     type: Date,
     description: 'Birth Time',
+    example: '1990-01-01',
   })
+  @IsDate()
+  @IsOptional()
   birthTime: Date;
 
   @ApiProperty({
     type: Number,
     description: 'Level',
   })
+  @IsNumber()
+  @IsOptional()
   level: number;
 
-  @ApiPropertyOptional({ type: RoleDto })
+  @ApiProperty({ type: RoleDto })
   @Type(() => RoleDto)
   @IsNotEmpty()
   role: RoleDto;

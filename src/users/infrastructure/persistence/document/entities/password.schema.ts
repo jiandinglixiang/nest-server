@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, now } from 'mongoose';
+import { EntityDocumentHelper } from '../../../../../utils/document-entity-helper';
 
 export type PasswordSchemaDocument = HydratedDocument<PasswordSchemaClass>;
 
@@ -10,14 +11,14 @@ export type PasswordSchemaDocument = HydratedDocument<PasswordSchemaClass>;
     getters: true,
   },
 })
-export class PasswordSchemaClass {
-  @Prop({ type: String, required: true })
+export class PasswordSchemaClass extends EntityDocumentHelper {
+  @Prop({ type: String })
   userID: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   password: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   operatorUserID: string;
 
   @Prop({ type: Date, default: now })

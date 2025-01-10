@@ -48,7 +48,7 @@ export class UsersDocumentRepository implements UserRepository {
         sortOptions?.reduce(
           (accumulator, sort) => ({
             ...accumulator,
-            [sort.orderBy === 'userID' ? '_id' : sort.orderBy]:
+            [sort.orderBy === 'id' ? '_id' : sort.orderBy]:
               sort.order.toUpperCase() === 'ASC' ? 1 : -1,
           }),
           {},
@@ -60,13 +60,13 @@ export class UsersDocumentRepository implements UserRepository {
     return userObjects.map((userObject) => UserMapper.toDomain(userObject));
   }
 
-  async findById(userID: User['userID']): Promise<NullableType<User>> {
-    const userObject = await this.usersModel.findById(userID);
+  async findById(id: User['id']): Promise<NullableType<User>> {
+    const userObject = await this.usersModel.findById(id);
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
-  async findByIds(userIDs: User['userID'][]): Promise<User[]> {
-    const userObjects = await this.usersModel.find({ _id: { $in: userIDs } });
+  async findByIds(ids: User['id'][]): Promise<User[]> {
+    const userObjects = await this.usersModel.find({ _id: { $in: ids } });
     return userObjects.map((userObject) => UserMapper.toDomain(userObject));
   }
 
@@ -79,14 +79,11 @@ export class UsersDocumentRepository implements UserRepository {
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
-  async update(
-    userID: User['userID'],
-    payload: Partial<User>,
-  ): Promise<User | null> {
+  async update(id: User['id'], payload: Partial<User>): Promise<User | null> {
     const clonedPayload = { ...payload };
-    delete clonedPayload.userID;
+    delete clonedPayload.id;
 
-    const filter = { _id: userID };
+    const filter = { _id: id };
     const user = await this.usersModel.findOne(filter);
 
     if (!user) {
@@ -105,9 +102,9 @@ export class UsersDocumentRepository implements UserRepository {
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
-  async remove(userID: User['userID']): Promise<void> {
+  async remove(id: User['id']): Promise<void> {
     await this.usersModel.deleteOne({
-      _id: userID,
+      _id: id,
     });
   }
 }

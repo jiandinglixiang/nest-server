@@ -32,7 +32,7 @@ export class PasswordDocumentRepository implements PasswordRepository {
     payload: Partial<Password>,
   ): Promise<Password | null> {
     const clonedPayload = { ...payload };
-    delete clonedPayload.userID;
+    delete clonedPayload.id; // 不能往里加id
 
     const filter = { userID };
     const password = await this.passwordsModel.findOne(filter);

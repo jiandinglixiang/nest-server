@@ -7,13 +7,9 @@ import { RoleSchema } from '../../../../../roles/infrastructure/persistence/docu
 export class UserMapper {
   static toDomain(raw: UserSchemaClass): User {
     const domainEntity = new User();
-    domainEntity.userID = raw._id.toString();
-
-    if (raw.role) {
-      domainEntity.role = new Role();
-      domainEntity.role.id = raw.role._id;
-    }
-    domainEntity.account = raw.account;
+    domainEntity.id = raw._id.toString();
+    domainEntity.role = new Role();
+    domainEntity.role.id = raw.role._id;
     domainEntity.phoneNumber = raw.phoneNumber;
     domainEntity.areaCode = raw.areaCode;
     domainEntity.email = raw.email;
@@ -32,12 +28,10 @@ export class UserMapper {
     role._id = domainEntity.role.id.toString();
 
     const persistenceSchema = new UserSchemaClass();
-
-    if (domainEntity.userID && typeof domainEntity.userID === 'string') {
-      persistenceSchema._id = domainEntity.userID;
+    if (domainEntity.id && typeof domainEntity.id === 'string') {
+      persistenceSchema._id = domainEntity.id;
     }
     persistenceSchema.role = role;
-    persistenceSchema.account = domainEntity.account;
     persistenceSchema.phoneNumber = domainEntity.phoneNumber;
     persistenceSchema.areaCode = domainEntity.areaCode;
     persistenceSchema.email = domainEntity.email;

@@ -3,21 +3,16 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { NullableType } from '../utils/types/nullable.type';
-import { FilterUserDto, SortUserDto } from './dto/query-user.dto';
-import { UserRepository } from './infrastructure/persistence/user.repository';
-import { User } from './domain/user';
-import bcrypt from 'bcryptjs';
 import { FilesService } from '../files/files.service';
-import { RoleEnum } from '../roles/roles.enum';
-import { StatusEnum } from '../statuses/statuses.enum';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { FileType } from '../files/domain/file';
 import { Role } from '../roles/domain/role';
-import { Status } from '../statuses/domain/status';
+import { RoleEnum } from '../roles/roles.enum';
+import { NullableType } from '../utils/types/nullable.type';
+import { IPaginationOptions } from '../utils/types/pagination-options';
+import { User } from './domain/user';
+import { CreateUserDto } from './dto/create-user.dto';
+import { FilterUserDto, SortUserDto } from './dto/query-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Request } from 'express';
+import { UserRepository } from './infrastructure/persistence/user.repository';
 
 @Injectable()
 export class UsersService {
@@ -26,59 +21,23 @@ export class UsersService {
     private readonly filesService: FilesService,
   ) {}
 
-  async create(createUserDto: CreateUserDto, request: Request): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     // Do not remove comment below.
     // <creating-property />
 
-    let password: string | undefined = undefined;
-
-    // 如果提供了密码，需要对密码进行加密处理
-    // 使用 bcryptjs 生成盐值
-    // 然后将密码和盐值进行加密
-    // 最后将加密后的字符串存储到数据中
-    if (createUserDto.password) {
-      const salt = await bcrypt.genSalt();
-      password = await bcrypt.hash(createUserDto.password, salt);
-    }
-
-    let phone: string | null = null;
-
-    if (createUserDto.phone) {
+    if (createUserDto.phoneNumber) {
       const userObject = await this.usersRepository.findByPhone(
-        createUserDto.phone,
+        createUserDto.phoneNumber,
       );
       if (userObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            phone: '电话已存在',
+            phoneNumber: '已存注册',
           },
         });
       }
-      phone = createUserDto.phone;
     }
-
-    let photo: FileType | null | undefined = undefined;
-
-    if (createUserDto.photo?.id) {
-      const fileObject = await this.filesService.findById(
-        createUserDto.photo.id,
-      );
-      if (!fileObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            photo: 'imageNotExists',
-          },
-        });
-      }
-      photo = fileObject;
-    } else if (createUserDto.photo === null) {
-      photo = null;
-    }
-
-    let role: Role | undefined = undefined;
-
     if (createUserDto.role?.id) {
       const roleObject = Object.values(RoleEnum)
         .map(String)
@@ -91,58 +50,17 @@ export class UsersService {
           },
         });
       }
-
-      role = {
-        id: createUserDto.role.id,
-      };
     }
 
-    let status: Status | undefined = undefined;
-
-    if (createUserDto.status?.id) {
-      const statusObject = Object.values(StatusEnum)
-        .map(String)
-        .includes(String(createUserDto.status.id));
-      if (!statusObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            status: 'statusNotExists',
-          },
-        });
-      }
-
-      status = {
-        id: createUserDto.status.id,
-      };
-    }
-
-    const user = {
+    const role: Role = {
+      id: createUserDto.role.id,
+    };
+    return this.usersRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      demo1: createUserDto.demo1,
-      firstName: createUserDto.firstName,
-      lastName: createUserDto.lastName,
-      phone: phone,
-      password: password,
-      photo: photo,
+      ...createUserDto,
       role: role,
-      status: status,
-      provider: createUserDto.provider ?? 'phone',
-      socialId: createUserDto.socialId,
-    };
-
-    const newUser = await this.usersRepository.create(user);
-
-    // 记录用户注册
-    await this.userLogsService.logUserActivity(
-      newUser.id,
-      'REGISTER',
-      request,
-      `User registered with email: ${newUser.email}`,
-    );
-
-    return newUser;
+    });
   }
 
   findManyWithPagination({
@@ -169,7 +87,7 @@ export class UsersService {
     return this.usersRepository.findByIds(ids);
   }
 
-  findByPhone(phone: User['phone']): Promise<NullableType<User>> {
+  findByPhone(phone: User['phoneNumber']): Promise<NullableType<User>> {
     return this.usersRepository.findByPhone(phone);
   }
 
@@ -179,23 +97,11 @@ export class UsersService {
   ): Promise<User | null> {
     // Do not remove comment below.
     // <updating-property />
+    let phoneNumber: string | undefined = undefined;
 
-    let password: string | undefined = undefined;
-
-    if (updateUserDto.password) {
-      const userObject = await this.usersRepository.findById(id);
-
-      if (userObject && userObject?.password !== updateUserDto.password) {
-        const salt = await bcrypt.genSalt();
-        password = await bcrypt.hash(updateUserDto.password, salt);
-      }
-    }
-
-    let phone: string | null | undefined = undefined;
-
-    if (updateUserDto.phone) {
+    if (updateUserDto.phoneNumber) {
       const userObject = await this.usersRepository.findByPhone(
-        updateUserDto.phone,
+        updateUserDto.phoneNumber,
       );
 
       if (userObject && userObject.id !== id) {
@@ -207,28 +113,7 @@ export class UsersService {
         });
       }
 
-      phone = updateUserDto.phone;
-    } else if (updateUserDto.phone === null) {
-      phone = null;
-    }
-
-    let photo: FileType | null | undefined = undefined;
-
-    if (updateUserDto.photo?.id) {
-      const fileObject = await this.filesService.findById(
-        updateUserDto.photo.id,
-      );
-      if (!fileObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            photo: 'imageNotExists',
-          },
-        });
-      }
-      photo = fileObject;
-    } else if (updateUserDto.photo === null) {
-      photo = null;
+      phoneNumber = updateUserDto.phoneNumber;
     }
 
     let role: Role | undefined = undefined;
@@ -251,40 +136,12 @@ export class UsersService {
       };
     }
 
-    let status: Status | undefined = undefined;
-
-    if (updateUserDto.status?.id) {
-      const statusObject = Object.values(StatusEnum)
-        .map(String)
-        .includes(String(updateUserDto.status.id));
-      if (!statusObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            status: 'statusNotExists',
-          },
-        });
-      }
-
-      status = {
-        id: updateUserDto.status.id,
-      };
-    }
-
     return this.usersRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      demo1: updateUserDto.demo1,
-
-      firstName: updateUserDto.firstName,
-      lastName: updateUserDto.lastName,
-      phone,
-      password,
-      photo,
+      phoneNumber,
       role,
-      status,
-      provider: updateUserDto.provider,
-      socialId: updateUserDto.socialId,
+      ...updateUserDto,
     });
   }
 

@@ -11,7 +11,6 @@ import {
   HttpStatus,
   HttpCode,
   SerializeOptions,
-  Req,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -36,7 +35,6 @@ import { User } from './domain/user';
 import { UsersService } from './users.service';
 import { RolesGuard } from '../roles/roles.guard';
 import { infinityPagination } from '../utils/infinity-pagination';
-import { Request } from 'express';
 
 @ApiBearerAuth()
 @Roles(RoleEnum.admin)
@@ -59,11 +57,8 @@ export class UsersController {
   })
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(
-    @Body() createUserDto: CreateUserDto,
-    @Req() req: Request,
-  ): Promise<User> {
-    return this.usersService.create(createUserDto, req);
+  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.usersService.create(createUserDto);
   }
 
   @ApiOkResponse({
@@ -103,17 +98,15 @@ export class UsersController {
   @SerializeOptions({
     groups: ['admin'],
   })
-  @Get(':userID')
+  @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({
-    name: 'userID',
+    name: 'id',
     type: String,
     required: true,
   })
-  findOne(
-    @Param('userID') userID: User['userID'],
-  ): Promise<NullableType<User>> {
-    return this.usersService.findById(userID);
+  findOne(@Param('id') id: User['id']): Promise<NullableType<User>> {
+    return this.usersService.findById(id);
   }
 
   @ApiOkResponse({
@@ -122,28 +115,28 @@ export class UsersController {
   @SerializeOptions({
     groups: ['admin'],
   })
-  @Patch(':userID')
+  @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({
-    name: 'userID',
+    name: 'id',
     type: String,
     required: true,
   })
   update(
-    @Param('userID') userID: User['userID'],
+    @Param('id') id: User['id'],
     @Body() updateProfileDto: UpdateUserDto,
   ): Promise<User | null> {
-    return this.usersService.update(userID, updateProfileDto);
+    return this.usersService.update(id, updateProfileDto);
   }
 
-  @Delete(':userID')
+  @Delete(':id')
   @ApiParam({
-    name: 'userID',
+    name: 'id',
     type: String,
     required: true,
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('userID') userID: User['userID']): Promise<void> {
-    return this.usersService.remove(userID);
+  remove(@Param('id') id: User['id']): Promise<void> {
+    return this.usersService.remove(id);
   }
 }

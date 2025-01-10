@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsEnum,
+  IsMobilePhone,
   IsNumber,
   IsOptional,
   IsString,
@@ -14,7 +16,17 @@ export class FilterUserDto {
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => RoleDto)
-  roles?: RoleDto[] | null;
+  roles?: RoleDto[];
+
+  @ApiPropertyOptional({ type: String })
+  @IsMobilePhone('zh-CN')
+  @IsOptional()
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({ type: Number })
+  @IsEnum([0, 1])
+  @IsOptional()
+  gender?: 0 | 1;
 }
 
 export class SortUserDto {
