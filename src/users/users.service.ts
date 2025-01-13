@@ -3,7 +3,6 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { FilesService } from '../files/files.service';
 import { Role } from '../roles/domain/role';
 import { RoleEnum } from '../roles/roles.enum';
 import { NullableType } from '../utils/types/nullable.type';
@@ -16,10 +15,7 @@ import { UserRepository } from './infrastructure/persistence/user.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly usersRepository: UserRepository,
-    private readonly filesService: FilesService,
-  ) {}
+  constructor(private readonly usersRepository: UserRepository) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Do not remove comment below.

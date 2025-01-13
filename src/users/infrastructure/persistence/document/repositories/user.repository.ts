@@ -16,6 +16,7 @@ export class UsersDocumentRepository implements UserRepository {
   constructor(
     @InjectModel(UserSchemaClass.name)
     private readonly usersModel: Model<UserSchemaClass>,
+    @InjectModel(PasswordSchemaClass.name)
     private readonly passwordsModel: Model<PasswordSchemaClass>,
   ) {}
 
