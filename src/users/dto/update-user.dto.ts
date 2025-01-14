@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
-import { IsString } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({
@@ -8,5 +8,15 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     description: '用户ID',
   })
   @IsString()
+  @IsNotEmpty()
   id: string;
+
+  @ApiProperty({
+    type: Date,
+    description: 'deletedAt Time',
+    example: '2023-01-02T00:00:00Z',
+  })
+  @IsOptional()
+  @IsDate()
+  deletedAt?: Date;
 }

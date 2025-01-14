@@ -1,3 +1,4 @@
+import { Status } from '../../statuses/domain/status';
 import { Role } from '../../roles/domain/role';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
@@ -70,6 +71,11 @@ export class User {
   role: Role;
 
   @ApiProperty({
+    type: () => Status,
+  })
+  status: Status;
+
+  @ApiProperty({
     type: Date,
     description: 'Creation Time',
     example: '2023-01-01T00:00:00Z',
@@ -82,4 +88,11 @@ export class User {
     example: '2023-01-02T00:00:00Z',
   })
   updatedAt: Date;
+
+  @ApiProperty({
+    type: Date,
+    description: 'deletedAt Time',
+    example: '2023-01-02T00:00:00Z',
+  })
+  deletedAt: Date;
 }

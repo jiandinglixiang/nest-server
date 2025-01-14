@@ -1,19 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMobilePhone, IsNotEmpty, Length, MinLength } from 'class-validator';
+import { IsEnum, IsMobilePhone, IsNotEmpty, Length } from 'class-validator';
 import { RoleEnum } from '../../roles/roles.enum';
 
 export class AuthRegisterLoginDto {
-  @ApiProperty({ example: '15577648264', type: String })
+  @ApiProperty({
+    type: String,
+    description: 'Phone Number',
+    example: '15577648264',
+  })
   @IsMobilePhone('zh-CN')
   @IsNotEmpty()
-  @Length(11)
-  phone: string;
+  phoneNumber: string;
 
-  @ApiProperty()
-  @MinLength(6)
-  password: string;
-
-  @ApiProperty({ example: RoleEnum.admin })
+  @ApiProperty({
+    description: '验证码',
+    example: '123456',
+  })
   @IsNotEmpty()
+  @Length(6, 6)
+  code: string;
+
+  @ApiProperty({ enum: RoleEnum })
+  @IsNotEmpty()
+  @IsEnum(RoleEnum)
   role: RoleEnum;
 }

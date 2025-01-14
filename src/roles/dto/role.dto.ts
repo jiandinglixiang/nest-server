@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsEnum } from 'class-validator';
+import { RoleEnum } from '../roles.enum';
 
 export class RoleDto {
-  @ApiProperty()
-  @IsNumber()
-  id: number | string;
+  @ApiProperty({ enum: RoleEnum })
+  @IsEnum(RoleEnum)
+  id: RoleEnum;
 }

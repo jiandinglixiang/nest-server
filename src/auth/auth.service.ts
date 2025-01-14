@@ -4,25 +4,28 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import ms from 'ms';
-import crypto from 'crypto';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
-import { AuthPhoneLoginDto } from './dto/auth-phone-login.dto';
-import { AuthUpdateDto } from './dto/auth-update.dto';
-import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
-import { NullableType } from '../utils/types/nullable.type';
-import { LoginResponseDto } from './dto/login-response.dto';
-import { ConfigService } from '@nestjs/config';
-import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
-import { JwtPayloadType } from './strategies/types/jwt-payload.type';
-import { UsersService } from '../users/users.service';
+import crypto from 'crypto';
+import ms from 'ms';
 import { AllConfigType } from '../config/config.type';
+import { PasswordsService } from '../passwords/passwords.service';
 import { Session } from '../session/domain/session';
 import { SessionService } from '../session/session.service';
+import { SmsService } from '../sms/sms.service';
 import { StatusEnum } from '../statuses/statuses.enum';
 import { User } from '../users/domain/user';
+import { UsersService } from '../users/users.service';
+import { NullableType } from '../utils/types/nullable.type';
+import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
+import { AuthLoginDto } from './dto/auth-login.dto';
+import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
+import { AuthUpdateDto } from './dto/auth-update.dto';
+import { LoginResponseDto } from './dto/login-response.dto';
+import { JwtPayloadType } from './strategies/types/jwt-payload.type';
+import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
 
 @Injectable()
 export class AuthService {
@@ -30,58 +33,69 @@ export class AuthService {
     private jwtService: JwtService,
     private usersService: UsersService,
     private sessionService: SessionService,
+    private smsService: SmsService,
     private configService: ConfigService<AllConfigType>,
+    private passwordsService: PasswordsService,
   ) {}
 
-  async validateLogin(loginDto: AuthPhoneLoginDto): Promise<LoginResponseDto> {
-    const user = await this.usersService.findByPhone(loginDto.phone);
+  async validateLogin(loginDto: AuthLoginDto): Promise<LoginResponseDto> {
+    if (!loginDto?.phoneNumber && !loginDto?.code) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          phoneNumber: '手机号或验证码不能为空',
+        },
+      });
+    }
+    const user = await this.usersService.findByUser({
+      phoneNumber: loginDto.phoneNumber,
+    });
 
     if (!user) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
-          phone: 'notFound',
+          phoneNumber: '用户不存在',
         },
       });
     }
-
-    if (user.provider !== 'phone') {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          phone: `needLoginViaProvider:${user.provider}`,
-        },
-      });
+    if (loginDto?.code) {
+      const code = await this.smsService.verifyCode(
+        loginDto.phoneNumber,
+        loginDto.code,
+      );
+      if (!code) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            code: '验证码错误',
+          },
+        });
+      }
+    } else if (loginDto?.password) {
+      const password = await this.passwordsService.findById(user.id);
+      if (!password) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            password: '用户未设置密码',
+          },
+        });
+      }
+      const isValidPassword = await bcrypt.compare(
+        loginDto.password,
+        password.password,
+      );
+      if (!isValidPassword) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            password: '密码错误',
+          },
+        });
+      }
     }
 
-    if (!user.password) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          password: '不正确的密码',
-        },
-      });
-    }
-
-    const isValidPassword = await bcrypt.compare(
-      loginDto.password,
-      user.password,
-    );
-
-    if (!isValidPassword) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          password: '不正确的密码',
-        },
-      });
-    }
-    // 更新状态
-    await this.usersService.update(user.id, {
-      status: {
-        id: StatusEnum.active,
-      },
-    });
     const hash = crypto
       .createHash('sha256')
       .update(randomStringGenerator())
@@ -108,10 +122,29 @@ export class AuthService {
   }
 
   async register(dto: AuthRegisterLoginDto): Promise<void> {
-    // 发送验证码
+    const user = await this.usersService.findByUser({
+      phoneNumber: dto.phoneNumber,
+    });
+    // 如果用户存在，则抛出错误
+    if (user) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          phoneNumber: '手机号已注册',
+        },
+      });
+    }
+    // 验证验证码
+    const code = await this.smsService.verifyCode(dto.phoneNumber, dto.code);
+    if (!code) {
+      return;
+    }
+
     await this.usersService.create({
-      ...dto,
-      phone: dto.phone,
+      phoneNumber: dto.phoneNumber,
+      areaCode: '86',
+      nickname:
+        dto.phoneNumber.slice(0, 3) + '****' + dto.phoneNumber.slice(-4),
       role: {
         id: dto.role,
       },
@@ -121,18 +154,37 @@ export class AuthService {
     });
   }
 
-  async forgotPassword(phone: string): Promise<void> {
-    const user = await this.usersService.findByPhone(phone);
+  async forgotPassword(dto: AuthForgotPasswordDto): Promise<void> {
+    const user = await this.usersService.findByUser({
+      phoneNumber: dto.phoneNumber,
+    });
 
     if (!user) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
-          phone: 'phoneNotExists',
+          phoneNumber: '用户不存在',
         },
       });
     }
-    // todo 忘记密码发送验证码
+    const code = await this.smsService.verifyCode(dto.phoneNumber, dto.code);
+    if (!code) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          code: '验证码错误',
+        },
+      });
+    }
+    // 更新密码
+    await this.passwordsService.update(user.id, {
+      password: dto.password,
+      operatorUserID: user.id,
+    });
+    // 清理状态
+    await this.sessionService.deleteByUserId({
+      userId: user.id,
+    });
   }
 
   async resetPassword(hash: string, password: string): Promise<void> {
@@ -157,7 +209,9 @@ export class AuthService {
       });
     }
 
-    const user = await this.usersService.findById(userId);
+    const user = await this.usersService.findByUser({
+      id: userId,
+    });
 
     if (!user) {
       throw new UnprocessableEntityException({
@@ -235,20 +289,42 @@ export class AuthService {
       }
     }
 
-    if (userDto.phone && userDto.phone !== currentUser.phone) {
-      const userByPhone = await this.usersService.findByPhone(userDto.phone);
+    if (userDto.email && userDto.email !== currentUser.email) {
+      const userByEmail = await this.usersService.findByEmail(userDto.email);
 
-      if (userByPhone && userByPhone.id !== currentUser.id) {
+      if (userByEmail && userByEmail.id !== currentUser.id) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            phone: 'phoneExists',
+            email: 'emailExists',
           },
         });
       }
-      // todo 发送短信验证并更新手机号
+
+      const hash = await this.jwtService.signAsync(
+        {
+          confirmEmailUserId: currentUser.id,
+          newEmail: userDto.email,
+        },
+        {
+          secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
+            infer: true,
+          }),
+          expiresIn: this.configService.getOrThrow('auth.confirmEmailExpires', {
+            infer: true,
+          }),
+        },
+      );
+
+      await this.mailService.confirmNewEmail({
+        to: userDto.email,
+        data: {
+          hash,
+        },
+      });
     }
 
+    delete userDto.email;
     delete userDto.oldPassword;
 
     await this.usersService.update(userJwtPayload.id, userDto);

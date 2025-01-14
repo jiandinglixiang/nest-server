@@ -1,4 +1,7 @@
+import { StatusDto } from '../../statuses/dto/status.dto';
+
 import { ApiProperty } from '@nestjs/swagger';
+
 import { Type } from 'class-transformer';
 import {
   Equals,
@@ -39,7 +42,7 @@ export class CreateUserDto {
   })
   @IsEmail()
   @IsOptional()
-  email: string;
+  email?: string;
 
   @ApiProperty({
     type: String,
@@ -47,7 +50,7 @@ export class CreateUserDto {
   })
   @Length(2, 10)
   @IsOptional()
-  nickname: string;
+  nickname?: string;
 
   @ApiProperty({
     type: String,
@@ -55,7 +58,7 @@ export class CreateUserDto {
   })
   @IsUrl()
   @IsOptional()
-  faceUrl: string;
+  faceUrl?: string;
 
   @ApiProperty({
     type: Number,
@@ -64,7 +67,7 @@ export class CreateUserDto {
   })
   @IsEnum([0, 1])
   @IsOptional()
-  gender: 0 | 1;
+  gender?: 0 | 1;
 
   @ApiProperty({
     type: Date,
@@ -73,7 +76,7 @@ export class CreateUserDto {
   })
   @IsDate()
   @IsOptional()
-  birthTime: Date;
+  birthTime?: Date;
 
   @ApiProperty({
     type: Number,
@@ -81,10 +84,17 @@ export class CreateUserDto {
   })
   @IsNumber()
   @IsOptional()
-  level: number;
+  level?: number;
 
   @ApiProperty({ type: RoleDto })
   @Type(() => RoleDto)
   @IsNotEmpty()
   role: RoleDto;
+
+  @ApiProperty({
+    type: StatusDto,
+  })
+  @Type(() => StatusDto)
+  @IsNotEmpty()
+  status: StatusDto;
 }

@@ -7,7 +7,7 @@ import { IPaginationOptions } from '../../../../../utils/types/pagination-option
 import { User } from '../../../../domain/user';
 import { FilterUserDto, SortUserDto } from '../../../../dto/query-user.dto';
 import { UserRepository } from '../../user.repository';
-import { PasswordSchemaClass } from '../entities/password.schema';
+import { PasswordSchemaClass } from '../../../../../passwords/infrastructure/persistence/document/entities/password.schema';
 import { UserSchemaClass } from '../entities/user.schema';
 import { UserMapper } from '../mappers/user.mapper';
 
@@ -66,16 +66,14 @@ export class UsersDocumentRepository implements UserRepository {
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
-  async findByIds(ids: User['id'][]): Promise<User[]> {
-    const userObjects = await this.usersModel.find({ _id: { $in: ids } });
-    return userObjects.map((userObject) => UserMapper.toDomain(userObject));
+  async findByEmail(email: User['email']): Promise<NullableType<User>> {
+    const userObject = await this.usersModel.findOne({ email });
+    return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
   async findByPhone(
     phoneNumber: User['phoneNumber'],
   ): Promise<NullableType<User>> {
-    if (!phoneNumber) return null;
-
     const userObject = await this.usersModel.findOne({ phoneNumber });
     return userObject ? UserMapper.toDomain(userObject) : null;
   }

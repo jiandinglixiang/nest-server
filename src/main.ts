@@ -15,7 +15,9 @@ import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
 
 async function bootstrap() {
   // 创建一个Nest应用实例，并启用CORS（跨域资源共享）
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule, {
+    cors: true,
+  });
   // 设置class-validator库使用的容器，并在发生错误时使用默认容器
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   // 获取配置服务实例，用于访问应用配置

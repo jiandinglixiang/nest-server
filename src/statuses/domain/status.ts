@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Allow } from 'class-validator';
+import { StatusEnum } from '../statuses.enum';
 
 const idType = String;
 
@@ -8,12 +9,11 @@ export class Status {
   @ApiProperty({
     type: idType,
   })
-  id: number | string;
+  id: string;
 
   @Allow()
   @ApiProperty({
-    type: String,
-    example: 'active',
+    enum: StatusEnum,
   })
-  name?: string;
+  name?: keyof typeof StatusEnum;
 }

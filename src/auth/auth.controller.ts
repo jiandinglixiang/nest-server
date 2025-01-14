@@ -13,8 +13,9 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { AuthPhoneLoginDto } from './dto/auth-phone-login.dto';
+import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthForgotPasswordDto } from './dto/auth-forgot-password.dto';
+import { AuthConfirmEmailDto } from './dto/auth-confirm-email.dto';
 import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -32,49 +33,48 @@ import { RefreshResponseDto } from './dto/refresh-response.dto';
 export class AuthController {
   constructor(private readonly service: AuthService) {}
 
-  /**
-   * 用户通过手机号登录
-   * @param loginDto 包含手机号和密码的登录信息
-   * @returns 登录响应数据
-   */
   @SerializeOptions({
     groups: ['me'],
   })
+  @Post('email/login')
   @ApiOkResponse({
     type: LoginResponseDto,
   })
-  @Post('phone/login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() loginDto: AuthPhoneLoginDto): Promise<LoginResponseDto> {
+  public login(@Body() loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
     return this.service.validateLogin(loginDto);
   }
 
-  /**
-   * 用户注册
-   * @param createUserDto 包含注册信息的数据传输对象
-   */
-  @Post('phone/register')
+  @Post('email/register')
   @HttpCode(HttpStatus.NO_CONTENT)
   async register(@Body() createUserDto: AuthRegisterLoginDto): Promise<void> {
     return this.service.register(createUserDto);
   }
 
-  /**
-   * 忘记密码处理
-   * @param forgotPasswordDto 包含手机号的数据传输对象
-   */
+  @Post('email/confirm')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async confirmEmail(
+    @Body() confirmEmailDto: AuthConfirmEmailDto,
+  ): Promise<void> {
+    return this.service.confirmEmail(confirmEmailDto.hash);
+  }
+
+  @Post('email/confirm/new')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async confirmNewEmail(
+    @Body() confirmEmailDto: AuthConfirmEmailDto,
+  ): Promise<void> {
+    return this.service.confirmNewEmail(confirmEmailDto.hash);
+  }
+
   @Post('forgot/password')
   @HttpCode(HttpStatus.NO_CONTENT)
   async forgotPassword(
     @Body() forgotPasswordDto: AuthForgotPasswordDto,
   ): Promise<void> {
-    return this.service.forgotPassword(forgotPasswordDto.phone);
+    return this.service.forgotPassword(forgotPasswordDto.email);
   }
 
-  /**
-   * 重置密码
-   * @param resetPasswordDto 包含重置哈希和新密码的数据传输对象
-   */
   @Post('reset/password')
   @HttpCode(HttpStatus.NO_CONTENT)
   resetPassword(@Body() resetPasswordDto: AuthResetPasswordDto): Promise<void> {
@@ -84,47 +84,6 @@ export class AuthController {
     );
   }
 
-  /**
-   * 刷新令牌
-   * @param request 包含用户会话信息的请求对象
-   * @returns 刷新令牌响应数据
-   */
-  @ApiBearerAuth()
-  @ApiOkResponse({
-    type: RefreshResponseDto,
-  })
-  @SerializeOptions({
-    groups: ['me'],
-  })
-  @Post('refresh')
-  @UseGuards(AuthGuard('jwt-refresh'))
-  @HttpCode(HttpStatus.OK)
-  refresh(@Request() request): Promise<RefreshResponseDto> {
-    return this.service.refreshToken({
-      sessionId: request.user.sessionId,
-      hash: request.user.hash,
-    });
-  }
-
-  /**
-   * 用户登出
-   * @param request 包含用户会话信息的请求对象
-   */
-  @ApiBearerAuth()
-  @Post('logout')
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@Request() request): Promise<void> {
-    await this.service.logout({
-      sessionId: request.user.sessionId,
-    });
-  }
-
-  /**
-   * 获取当前用户信息
-   * @param request 包含用户信息的请求对象
-   * @returns 当前用户信息
-   */
   @ApiBearerAuth()
   @SerializeOptions({
     groups: ['me'],
@@ -135,16 +94,37 @@ export class AuthController {
     type: User,
   })
   @HttpCode(HttpStatus.OK)
-  me(@Request() request): Promise<NullableType<User>> {
+  public me(@Request() request): Promise<NullableType<User>> {
     return this.service.me(request.user);
   }
 
-  /**
-   * 更新当前用户信息
-   * @param request 包含用户信息的请求对象
-   * @param userDto 包含更新信息的数据传输对象
-   * @returns 更新后的用户信息
-   */
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: RefreshResponseDto,
+  })
+  @SerializeOptions({
+    groups: ['me'],
+  })
+  @Post('refresh')
+  @UseGuards(AuthGuard('jwt-refresh'))
+  @HttpCode(HttpStatus.OK)
+  public refresh(@Request() request): Promise<RefreshResponseDto> {
+    return this.service.refreshToken({
+      sessionId: request.user.sessionId,
+      hash: request.user.hash,
+    });
+  }
+
+  @ApiBearerAuth()
+  @Post('logout')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async logout(@Request() request): Promise<void> {
+    await this.service.logout({
+      sessionId: request.user.sessionId,
+    });
+  }
+
   @ApiBearerAuth()
   @SerializeOptions({
     groups: ['me'],
@@ -155,22 +135,18 @@ export class AuthController {
   @ApiOkResponse({
     type: User,
   })
-  update(
+  public update(
     @Request() request,
     @Body() userDto: AuthUpdateDto,
   ): Promise<NullableType<User>> {
     return this.service.update(request.user, userDto);
   }
 
-  /**
-   * 删除当前用户（软删除）
-   * @param request 包含用户信息的请求对象
-   */
   @ApiBearerAuth()
   @Delete('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Request() request): Promise<void> {
+  public async delete(@Request() request): Promise<void> {
     return this.service.softDelete(request.user);
   }
 }

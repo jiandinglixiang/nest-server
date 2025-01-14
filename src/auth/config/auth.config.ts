@@ -22,6 +22,12 @@ class EnvironmentVariablesValidator {
 
   @IsString()
   AUTH_FORGOT_TOKEN_EXPIRES_IN: string;
+
+  @IsString()
+  AUTH_CONFIRM_CODE_SECRET: string;
+
+  @IsString()
+  AUTH_CONFIRM_CODE_TOKEN_EXPIRES_IN: string;
 }
 
 export default registerAs<AuthConfig>('auth', () => {
@@ -34,5 +40,7 @@ export default registerAs<AuthConfig>('auth', () => {
     refreshExpires: process.env.AUTH_REFRESH_TOKEN_EXPIRES_IN,
     forgotSecret: process.env.AUTH_FORGOT_SECRET,
     forgotExpires: process.env.AUTH_FORGOT_TOKEN_EXPIRES_IN,
+    confirmCodeSecret: process.env.AUTH_CONFIRM_CODE_SECRET,
+    confirmCodeExpires: process.env.AUTH_CONFIRM_CODE_TOKEN_EXPIRES_IN,
   };
 });

@@ -1,8 +1,10 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { now, HydratedDocument } from 'mongoose';
+import { StatusSchema } from '../../../../../statuses/infrastructure/persistence/document/entities/status.schema';
 
-import { EntityDocumentHelper } from '../../../../../utils/document-entity-helper';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, now } from 'mongoose';
+
 import { RoleSchema } from '../../../../../roles/infrastructure/persistence/document/entities/role.schema';
+import { EntityDocumentHelper } from '../../../../../utils/document-entity-helper';
 
 export type UserSchemaDocument = HydratedDocument<UserSchemaClass>;
 
@@ -41,11 +43,19 @@ export class UserSchemaClass extends EntityDocumentHelper {
   @Prop({ type: RoleSchema })
   role: RoleSchema;
 
+  @Prop({
+    type: StatusSchema,
+  })
+  status: StatusSchema;
+
   @Prop({ type: Date, default: now })
   createdAt: Date;
 
-  @Prop({ type: Date })
+  @Prop({ type: Date, default: now })
   updatedAt: Date;
+
+  @Prop({ type: Date })
+  deletedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserSchemaClass);

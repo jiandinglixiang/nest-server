@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Allow } from 'class-validator';
+import { RoleEnum } from '../roles.enum';
 
 const idType = String;
 
@@ -8,12 +9,12 @@ export class Role {
   @ApiProperty({
     type: idType,
   })
-  id: number | string;
+  id: string;
 
   @Allow()
   @ApiProperty({
     type: String,
-    example: 'admin',
+    enum: RoleEnum,
   })
-  name?: string;
+  name?: keyof typeof RoleEnum;
 }

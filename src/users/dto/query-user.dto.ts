@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsEmail,
   IsEnum,
   IsMobilePhone,
   IsNumber,
@@ -10,7 +11,7 @@ import {
 import { Transform, Type, plainToInstance } from 'class-transformer';
 import { User } from '../domain/user';
 import { RoleDto } from '../../roles/dto/role.dto';
-
+import { OmitType } from '@nestjs/swagger';
 export class FilterUserDto {
   @ApiPropertyOptional({ type: RoleDto })
   @IsOptional()
@@ -27,7 +28,25 @@ export class FilterUserDto {
   @IsEnum([0, 1])
   @IsOptional()
   gender?: 0 | 1;
+
+  @ApiProperty({
+    type: String,
+    description: 'Email',
+    example: 'test@example.com',
+  })
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'User ID',
+    example: '1234567890',
+  })
+  @IsOptional()
+  id?: string;
 }
+export class FindUserDto extends OmitType(FilterUserDto, ['roles', 'gender']) {}
 
 export class SortUserDto {
   @ApiProperty()

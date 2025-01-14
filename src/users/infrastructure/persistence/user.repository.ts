@@ -21,14 +21,13 @@ export abstract class UserRepository {
   }): Promise<User[]>;
 
   abstract findById(id: User['id']): Promise<NullableType<User>>;
-  abstract findByIds(ids: User['id'][]): Promise<User[]>;
+  abstract findByEmail(email: User['email']): Promise<NullableType<User>>;
   abstract findByPhone(
     phoneNumber: User['phoneNumber'],
   ): Promise<NullableType<User>>;
+
   abstract update(
     id: User['id'],
     payload: DeepPartial<User>,
   ): Promise<User | null>;
-
-  abstract remove(id: User['id']): Promise<void>;
 }

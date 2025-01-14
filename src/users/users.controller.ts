@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../roles/roles.decorator';
 import { RoleEnum } from '../roles/roles.enum';
@@ -20,8 +10,9 @@ import { InfinityPaginationResponseDto } from '../utils/dto/infinity-pagination-
 import { infinityPagination } from '../utils/infinity-pagination';
 import { NullableType } from '../utils/types/nullable.type';
 import { User } from './domain/user';
-import { QueryUserDto } from './dto/query-user.dto';
+import { FindUserDto, QueryUserDto } from './dto/query-user.dto';
 import { UsersService } from './users.service';
+import { UserDto } from './dto/user.dto';
 
 @Roles(RoleEnum.admin)
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -33,7 +24,7 @@ export class UsersController {
   // 构造函数注入UsersService
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  @Post('create')
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
   }
@@ -62,18 +53,21 @@ export class UsersController {
     );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: User['id']): Promise<NullableType<User>> {
-    return this.usersService.findById(id);
+  @Get('findOne')
+  findOne(@Body() findUserDto: FindUserDto): Promise<NullableType<User>> {
+    return this.usersService.findByUser(findUserDto);
   }
 
-  @Patch(':id')
+  @Post('update')
   update(@Body() updateProfileDto: UpdateUserDto): Promise<User | null> {
     return this.usersService.update(updateProfileDto.id, updateProfileDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: User['id']): Promise<void> {
-    return this.usersService.remove(id);
+  @Post('remove')
+  async remove(@Body() removeUserDto: UserDto): Promise<void> {
+    await this.usersService.update(removeUserDto.id, {
+      id: removeUserDto.id,
+      deletedAt: new Date(),
+    });
   }
 }

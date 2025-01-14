@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsEnum } from 'class-validator';
+import { StatusEnum } from '../statuses.enum';
 
 export class StatusDto {
-  @ApiProperty()
-  @IsNumber()
-  id: number | string;
+  @ApiProperty({ enum: StatusEnum })
+  @IsEnum(StatusEnum)
+  id: StatusEnum;
 }
