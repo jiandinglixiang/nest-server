@@ -12,6 +12,32 @@ export type SmsSchemaDocument = HydratedDocument<SmsSchemaClass>;
   },
 })
 export class SmsSchemaClass extends EntityDocumentHelper {
+  @Prop({
+    type: Boolean,
+    index: true,
+  })
+  isUsed: boolean;
+
+  @Prop({
+    type: Date,
+  })
+  expiredAt: Date;
+
+  @Prop({
+    type: String,
+  })
+  phoneNumber: string;
+
+  @Prop({
+    type: String,
+  })
+  userID: string;
+
+  @Prop({
+    type: String,
+  })
+  code: string;
+
   @Prop({ default: now })
   createdAt: Date;
 

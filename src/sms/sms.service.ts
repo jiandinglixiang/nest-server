@@ -12,16 +12,22 @@ export class SmsService {
     private readonly smsRepository: SmsRepository,
   ) {}
 
-  async create(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createSmsDto: CreateSmsDto,
-  ) {
+  async create(createSmsDto: CreateSmsDto) {
     // Do not remove comment below.
     // <creating-property />
 
     return this.smsRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
+      isUsed: createSmsDto.isUsed,
+
+      expiredAt: createSmsDto.expiredAt,
+
+      phoneNumber: createSmsDto.phoneNumber,
+
+      userID: createSmsDto.userID,
+
+      code: createSmsDto.code,
     });
   }
 
@@ -46,9 +52,9 @@ export class SmsService {
     return this.smsRepository.findByIds(ids);
   }
 
-  async update(
+  update(
     id: Sms['id'],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     updateSmsDto: UpdateSmsDto,
   ) {
     // Do not remove comment below.
@@ -57,10 +63,24 @@ export class SmsService {
     return this.smsRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
+      isUsed: updateSmsDto.isUsed,
+
+      expiredAt: updateSmsDto.expiredAt,
+
+      phoneNumber: updateSmsDto.phoneNumber,
+
+      userID: updateSmsDto.userID,
+
+      code: updateSmsDto.code,
     });
   }
 
   remove(id: Sms['id']) {
     return this.smsRepository.remove(id);
+  }
+
+  verifyCode(phoneNumber: any, code: string) {
+    console.log(phoneNumber, code);
+    return true;
   }
 }

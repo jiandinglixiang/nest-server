@@ -25,6 +25,7 @@ import { AuthUpdateDto } from './dto/auth-update.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { JwtPayloadType } from './strategies/types/jwt-payload.type';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
+import { SmsService } from '../sms/sms.service';
 
 @Injectable()
 export class AuthService {
@@ -34,8 +35,9 @@ export class AuthService {
     private sessionService: SessionService,
     private configService: ConfigService<AllConfigType>,
     private passwordsService: PasswordsService,
+    private smsService: SmsService,
   ) {}
-  smsService: any = {};
+
   async validateLogin(loginDto: AuthLoginDto): Promise<LoginResponseDto> {
     if (!(loginDto.phoneNumber || loginDto.code)) {
       throw new UnprocessableEntityException({
