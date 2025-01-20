@@ -11,9 +11,9 @@ import fileConfig from './files/config/file.config';
 import { FilesModule } from './files/files.module';
 import { HomeModule } from './home/home.module';
 import { SessionModule } from './session/session.module';
-import smsConfig from './sms-verifications/config/sms.config';
 import { SmsModule } from './sms/sms.module';
 import { UsersModule } from './users/users.module';
+import smsConfig from './sms/config/sms.config';
 
 const infrastructureDatabaseModule = MongooseModule.forRootAsync({
   useClass: MongooseConfigService,
