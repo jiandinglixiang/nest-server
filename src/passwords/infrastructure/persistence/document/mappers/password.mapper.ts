@@ -1,3 +1,4 @@
+import { Password } from '../../../../domain/password';
 import { PasswordSchemaClass } from '../entities/password.schema';
 
 export class PasswordMapper {

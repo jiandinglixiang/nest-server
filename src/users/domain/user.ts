@@ -47,7 +47,6 @@ export class User {
     type: Number,
     description: 'Gender',
     enum: [0, 1],
-    default: 0,
   })
   gender: number;
 

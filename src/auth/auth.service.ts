@@ -14,7 +14,6 @@ import { AllConfigType } from '../config/config.type';
 import { PasswordsService } from '../passwords/passwords.service';
 import { Session } from '../session/domain/session';
 import { SessionService } from '../session/session.service';
-import { SmsService } from '../sms/sms.service';
 import { StatusEnum } from '../statuses/statuses.enum';
 import { User } from '../users/domain/user';
 import { UsersService } from '../users/users.service';
@@ -33,13 +32,12 @@ export class AuthService {
     private jwtService: JwtService,
     private usersService: UsersService,
     private sessionService: SessionService,
-    private smsService: SmsService,
     private configService: ConfigService<AllConfigType>,
     private passwordsService: PasswordsService,
   ) {}
-
+  smsService: any = {};
   async validateLogin(loginDto: AuthLoginDto): Promise<LoginResponseDto> {
-    if (!loginDto?.phoneNumber && !loginDto?.code) {
+    if (!(loginDto.phoneNumber || loginDto.code)) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
@@ -204,7 +202,7 @@ export class AuthService {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
-          hash: `invalidHash`,
+          hash: `无效的哈希值`,
         },
       });
     }
@@ -217,119 +215,33 @@ export class AuthService {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
-          hash: `notFound`,
+          hash: `未找到`,
         },
       });
     }
 
-    user.password = password;
+    await this.passwordsService.update(user.id, {
+      password,
+      operatorUserID: user.id,
+    });
 
     await this.sessionService.deleteByUserId({
       userId: user.id,
     });
-
-    await this.usersService.update(user.id, user);
   }
 
   async me(userJwtPayload: JwtPayloadType): Promise<NullableType<User>> {
-    return this.usersService.findById(userJwtPayload.id);
+    return this.usersService.findByUser({
+      id: userJwtPayload.id,
+    });
   }
 
   async update(
     userJwtPayload: JwtPayloadType,
     userDto: AuthUpdateDto,
   ): Promise<NullableType<User>> {
-    const currentUser = await this.usersService.findById(userJwtPayload.id);
-
-    if (!currentUser) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          user: 'userNotFound',
-        },
-      });
-    }
-
-    if (userDto.password) {
-      if (!userDto.oldPassword) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            oldPassword: 'missingOldPassword',
-          },
-        });
-      }
-
-      if (!currentUser.password) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            oldPassword: 'incorrectOldPassword',
-          },
-        });
-      }
-
-      const isValidOldPassword = await bcrypt.compare(
-        userDto.oldPassword,
-        currentUser.password,
-      );
-
-      if (!isValidOldPassword) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            oldPassword: 'incorrectOldPassword',
-          },
-        });
-      } else {
-        await this.sessionService.deleteByUserIdWithExclude({
-          userId: currentUser.id,
-          excludeSessionId: userJwtPayload.sessionId,
-        });
-      }
-    }
-
-    if (userDto.email && userDto.email !== currentUser.email) {
-      const userByEmail = await this.usersService.findByEmail(userDto.email);
-
-      if (userByEmail && userByEmail.id !== currentUser.id) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: 'emailExists',
-          },
-        });
-      }
-
-      const hash = await this.jwtService.signAsync(
-        {
-          confirmEmailUserId: currentUser.id,
-          newEmail: userDto.email,
-        },
-        {
-          secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
-            infer: true,
-          }),
-          expiresIn: this.configService.getOrThrow('auth.confirmEmailExpires', {
-            infer: true,
-          }),
-        },
-      );
-
-      await this.mailService.confirmNewEmail({
-        to: userDto.email,
-        data: {
-          hash,
-        },
-      });
-    }
-
-    delete userDto.email;
-    delete userDto.oldPassword;
-
-    await this.usersService.update(userJwtPayload.id, userDto);
-
-    return this.usersService.findById(userJwtPayload.id);
+    // 更新用户资料
+    return await this.usersService.update(userJwtPayload.id, userDto);
   }
 
   async refreshToken(
@@ -350,7 +262,9 @@ export class AuthService {
       .update(randomStringGenerator())
       .digest('hex');
 
-    const user = await this.usersService.findById(session.user.id);
+    const user = await this.usersService.findByUser({
+      id: session.user.id,
+    });
 
     if (!user?.role) {
       throw new UnauthorizedException();
@@ -377,7 +291,7 @@ export class AuthService {
   }
 
   async softDelete(user: User): Promise<void> {
-    await this.usersService.remove(user.id);
+    await console.log(user);
   }
 
   async logout(data: Pick<JwtRefreshPayloadType, 'sessionId'>) {

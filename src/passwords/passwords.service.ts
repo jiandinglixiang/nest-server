@@ -1,5 +1,3 @@
-import { UsersService } from '../users/users.service';
-
 import { Injectable } from '@nestjs/common';
 import { Password } from './domain/password';
 import { CreatePasswordDto } from './dto/create-password.dto';
@@ -8,11 +6,7 @@ import { PasswordRepository } from './infrastructure/persistence/password.reposi
 
 @Injectable()
 export class PasswordsService {
-  constructor(
-    private readonly userService: UsersService,
-    // Dependencies here
-    private readonly passwordRepository: PasswordRepository,
-  ) {}
+  constructor(private readonly passwordRepository: PasswordRepository) {}
 
   async create(createPasswordDto: CreatePasswordDto) {
     // Do not remove comment below.

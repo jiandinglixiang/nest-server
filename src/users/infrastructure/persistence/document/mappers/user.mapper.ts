@@ -5,6 +5,8 @@ import { Role } from '../../../../../roles/domain/role';
 import { RoleSchema } from '../../../../../roles/infrastructure/persistence/document/entities/role.schema';
 import { Status } from '../../../../../statuses/domain/status';
 import { StatusSchema } from '../../../../../statuses/infrastructure/persistence/document/entities/status.schema';
+import { RoleEnum } from '../../../../../roles/roles.enum';
+import { StatusEnum } from '../../../../../statuses/statuses.enum';
 
 export class UserMapper {
   static toDomain(raw: UserSchemaClass): User {
@@ -14,9 +16,9 @@ export class UserMapper {
 
     domainEntity.id = raw._id.toString();
     domainEntity.role = new Role();
-    domainEntity.role.id = raw.role._id;
+    domainEntity.role.id = raw.role._id as RoleEnum;
     domainEntity.status = new Status();
-    domainEntity.status.id = raw.status._id;
+    domainEntity.status.id = raw.status._id as StatusEnum;
 
     domainEntity.phoneNumber = raw.phoneNumber;
     domainEntity.areaCode = raw.areaCode;

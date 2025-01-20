@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SendBatchSmsDto } from './dto/send-batch-sms.dto';
-import { SmsRepository } from './infrastructure/persistence/sms.repository';
 
 @Injectable()
 export class SmsService {
@@ -17,7 +16,6 @@ export class SmsService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly smsRepository: SmsRepository,
     private readonly cacheManager: Cache,
   ) {
     this.smsClient = new Core({
@@ -53,7 +51,7 @@ export class SmsService {
       const response = await this.smsClient.request('SendSms', params, {
         method: 'POST',
       });
-
+      console.log(response);
       // 将验证码存入缓存，设置5分钟过期
       await this.cacheManager.set(
         `sms:verification:${phoneNumber}`,
@@ -61,25 +59,25 @@ export class SmsService {
         300000,
       );
 
-      await this.smsRepository.create({
-        phoneNumbers: [phoneNumber],
-        templateCode: params.TemplateCode,
-        templateParam: { code },
-        signName: params.SignName,
-        status: 'sent',
-        bizId: response.BizId,
-        requestId: response.RequestId,
-      });
+      // await this.smsRepository.create({
+      //   phoneNumbers: [phoneNumber],
+      //   templateCode: params.TemplateCode,
+      //   templateParam: { code },
+      //   signName: params.SignName,
+      //   status: 'sent',
+      //   bizId: response.BizId,
+      //   requestId: response.RequestId,
+      // });
     } catch (error) {
       this.logger.error('发送验证码失败', error);
-      await this.smsRepository.create({
-        phoneNumbers: [phoneNumber],
-        templateCode: params.TemplateCode,
-        templateParam: { code },
-        signName: params.SignName,
-        status: 'failed',
-        message: error.message,
-      });
+      // await this.smsRepository.create({
+      //   phoneNumbers: [phoneNumber],
+      //   templateCode: params.TemplateCode,
+      //   templateParam: { code },
+      //   signName: params.SignName,
+      //   status: 'failed',
+      //   message: error.message,
+      // });
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: {
@@ -132,26 +130,26 @@ export class SmsService {
       const response = await this.smsClient.request('SendBatchSms', params, {
         method: 'POST',
       });
-
-      await this.smsRepository.create({
-        phoneNumbers: dto.phoneNumbers,
-        templateCode: params.TemplateCode,
-        templateParam: dto.templateParam,
-        signName: this.configService.get('sms.signName', { infer: true }),
-        status: 'sent',
-        bizId: response.BizId,
-        requestId: response.RequestId,
-      });
+      console.log(response);
+      // await this.smsRepository.create({
+      //   phoneNumbers: dto.phoneNumbers,
+      //   templateCode: params.TemplateCode,
+      //   templateParam: dto.templateParam,
+      //   signName: this.configService.get('sms.signName', { infer: true }),
+      //   status: 'sent',
+      //   bizId: response.BizId,
+      //   requestId: response.RequestId,
+      // });
     } catch (error) {
       this.logger.error('发送批量短信失败', error);
-      await this.smsRepository.create({
-        phoneNumbers: dto.phoneNumbers,
-        templateCode: params.TemplateCode,
-        templateParam: dto.templateParam,
-        signName: this.configService.get('sms.signName', { infer: true }),
-        status: 'failed',
-        message: error.message,
-      });
+      // await this.smsRepository.create({
+      //   phoneNumbers: dto.phoneNumbers,
+      //   templateCode: params.TemplateCode,
+      //   templateParam: dto.templateParam,
+      //   signName: this.configService.get('sms.signName', { infer: true }),
+      //   status: 'failed',
+      //   message: error.message,
+      // });
       throw error;
     }
   }

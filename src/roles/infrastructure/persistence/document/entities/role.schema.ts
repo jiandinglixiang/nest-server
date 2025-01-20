@@ -1,7 +1,7 @@
-import { RoleEnum } from '../../../../roles.enum';
+import { RoleEnum, RoleEnumKey } from '../../../../roles.enum';
 
 export class RoleSchema {
-  _id: string;
+  _id: RoleEnum | string;
 
-  name?: keyof typeof RoleEnum;
+  name?: RoleEnumKey;
 }

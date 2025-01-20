@@ -12,9 +12,7 @@ import { SessionModule } from './session/session.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './database/mongoose-config.service';
 import smsConfig from './sms-verifications/config/sms.config';
-import { SmsVerificationsModule } from './sms-verifications/sms-verifications.module';
 import { CacheModule } from '@nestjs/cache-manager';
-import { SmsModule } from './sms/sms.module';
 
 const infrastructureDatabaseModule = MongooseModule.forRootAsync({
   useClass: MongooseConfigService,
@@ -28,17 +26,16 @@ const infrastructureDatabaseModule = MongooseModule.forRootAsync({
       envFilePath: ['.env'],
     }),
     CacheModule.register({
+      global: true,
       ttl: 1000 * 60 * 5,
       max: 100,
     }),
     infrastructureDatabaseModule,
+    AuthModule,
     UsersModule,
     FilesModule,
-    AuthModule,
     SessionModule,
     HomeModule,
-    SmsVerificationsModule,
-    SmsModule,
   ],
 })
 export class AppModule {}

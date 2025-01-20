@@ -5,13 +5,13 @@ import { RoleEnum } from '../roles/roles.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-import { RolesGuard } from '../roles/roles.guard';
 import { InfinityPaginationResponseDto } from '../utils/dto/infinity-pagination-response.dto';
-import { infinityPagination } from '../utils/infinity-pagination';
 import { NullableType } from '../utils/types/nullable.type';
 import { User } from './domain/user';
 import { FindUserDto, QueryUserDto } from './dto/query-user.dto';
 import { UsersService } from './users.service';
+import { RolesGuard } from '../roles/roles.guard';
+import { infinityPagination } from '../utils/infinity-pagination';
 import { UserDto } from './dto/user.dto';
 
 @Roles(RoleEnum.admin)

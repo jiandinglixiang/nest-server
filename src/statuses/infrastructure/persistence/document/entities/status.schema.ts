@@ -1,7 +1,7 @@
-import { StatusEnum } from '../../../../statuses.enum';
+import { StatusEnum, StatusEnumKey } from '../../../../statuses.enum';
 
 export class StatusSchema {
-  _id: string;
+  _id: StatusEnum | string;
 
-  name?: keyof typeof StatusEnum;
+  name?: StatusEnumKey;
 }

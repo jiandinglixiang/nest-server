@@ -6,8 +6,8 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { Role } from '../roles/domain/role';
-import { RoleEnum } from '../roles/roles.enum';
-import { StatusEnum } from '../statuses/statuses.enum';
+import { RoleEnum, RoleEnumKey } from '../roles/roles.enum';
+import { StatusEnum, StatusEnumKey } from '../statuses/statuses.enum';
 import { NullableType } from '../utils/types/nullable.type';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { User } from './domain/user';
@@ -66,12 +66,12 @@ export class UsersService {
 
     const role: Role = {
       id: createUserDto.role.id,
-      name: RoleEnum[createUserDto.role.id],
+      name: RoleEnum[createUserDto.role.id] as RoleEnumKey,
     };
 
     const status: Status = {
       id: createUserDto.status.id,
-      name: StatusEnum[createUserDto.status.id],
+      name: StatusEnum[createUserDto.status.id] as StatusEnumKey,
     };
 
     return this.usersRepository.create({
@@ -80,6 +80,13 @@ export class UsersService {
       ...createUserDto,
       role,
       status,
+      gender: createUserDto.gender || 0,
+      email: createUserDto.email || '',
+      phoneNumber: createUserDto.phoneNumber || '',
+      nickname: createUserDto.nickname || '',
+      faceUrl: createUserDto.faceUrl || '',
+      birthTime: createUserDto.birthTime || new Date(),
+      level: createUserDto.level || 0,
     });
   }
 
@@ -161,7 +168,7 @@ export class UsersService {
 
       role = {
         id: updateUserDto.role.id,
-        name: RoleEnum[updateUserDto.role.id],
+        name: RoleEnum[updateUserDto.role.id] as RoleEnumKey,
       };
     }
 
@@ -182,7 +189,7 @@ export class UsersService {
 
       status = {
         id: updateUserDto.status.id,
-        name: StatusEnum[updateUserDto.status.id],
+        name: StatusEnum[updateUserDto.status.id] as StatusEnumKey,
       };
     }
 

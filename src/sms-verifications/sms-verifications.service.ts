@@ -14,8 +14,8 @@ export class SmsVerificationsService {
   private readonly smsClient: any;
 
   constructor(
-    private readonly configService: ConfigService,
     private readonly smsVerificationRepository: SmsVerificationRepository,
+    private readonly configService: ConfigService,
   ) {
     // 初始化阿里云SMS客户端
     this.smsClient = new Core({

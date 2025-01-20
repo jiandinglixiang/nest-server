@@ -3,3 +3,5 @@ export enum StatusEnum {
   'inactive' = 2,
   'deleted' = 3,
 }
+
+export type StatusEnumKey = keyof typeof StatusEnum;
