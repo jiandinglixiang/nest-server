@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsMobilePhone, IsNotEmpty } from 'class-validator';
 
-export class SendVerificationDto {
+export class SendResDto {
   @ApiProperty({
     description: '手机号码',
     example: '13800138000',
