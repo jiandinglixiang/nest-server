@@ -7,7 +7,6 @@ import { IPaginationOptions } from '../../../../../utils/types/pagination-option
 import { User } from '../../../../domain/user';
 import { FilterUserDto, SortUserDto } from '../../../../dto/query-user.dto';
 import { UserRepository } from '../../user.repository';
-import { PasswordSchemaClass } from '../../../../../passwords/infrastructure/persistence/document/entities/password.schema';
 import { UserSchemaClass } from '../entities/user.schema';
 import { UserMapper } from '../mappers/user.mapper';
 
@@ -16,8 +15,6 @@ export class UsersDocumentRepository implements UserRepository {
   constructor(
     @InjectModel(UserSchemaClass.name)
     private readonly usersModel: Model<UserSchemaClass>,
-    @InjectModel(PasswordSchemaClass.name)
-    private readonly passwordsModel: Model<PasswordSchemaClass>,
   ) {}
 
   async create(data: User): Promise<User> {

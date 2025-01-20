@@ -1,41 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { DeepPartial } from '../../../utils/types/deep-partial.type';
+import { NullableType } from '../../../utils/types/nullable.type';
+import { IPaginationOptions } from '../../../utils/types/pagination-options';
 import { Sms } from '../../domain/sms';
 
-@Injectable()
-export class SmsRepository {
-  constructor(
-    @InjectModel(Sms.name)
-    private readonly smsModel: Model<Sms>,
-  ) {}
+export abstract class SmsRepository {
+  abstract create(
+    data: Omit<Sms, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<Sms>;
 
-  async create(data: Partial<Sms>): Promise<Sms> {
-    const sms = new this.smsModel(data);
-    return sms.save();
-  }
+  abstract findAllWithPagination({
+    paginationOptions,
+  }: {
+    paginationOptions: IPaginationOptions;
+  }): Promise<Sms[]>;
 
-  async findById(id: string): Promise<Sms | null> {
-    return this.smsModel.findById(id).exec();
-  }
+  abstract findById(id: Sms['id']): Promise<NullableType<Sms>>;
 
-  async findByPhoneNumber(phoneNumber: string): Promise<Sms[]> {
-    return this.smsModel
-      .find({ phoneNumbers: { $in: [phoneNumber] } })
-      .sort({ createdAt: -1 })
-      .exec();
-  }
+  abstract findByIds(ids: Sms['id'][]): Promise<Sms[]>;
 
-  async deleteById(id: string): Promise<void> {
-    await this.smsModel.findByIdAndDelete(id).exec();
-  }
+  abstract update(
+    id: Sms['id'],
+    payload: DeepPartial<Sms>,
+  ): Promise<Sms | null>;
 
-  async deleteExpired(expirationDate: Date): Promise<void> {
-    await this.smsModel
-      .deleteMany({
-        createdAt: { $lt: expirationDate },
-        status: { $in: ['sent', 'failed'] },
-      })
-      .exec();
-  }
+  abstract remove(id: Sms['id']): Promise<void>;
 }

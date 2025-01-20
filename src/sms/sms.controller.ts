@@ -1,32 +1,108 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { SmsService } from './sms.service';
-import { SendBatchSmsDto } from './dto/send-batch-sms.dto';
-import { SendVerificationDto } from './dto/send-verification.dto';
-import { VerifyCodeDto } from './dto/verify-code.dto';
+import { CreateSmsDto } from './dto/create-sms.dto';
+import { UpdateSmsDto } from './dto/update-sms.dto';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Sms } from './domain/sms';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  InfinityPaginationResponse,
+  InfinityPaginationResponseDto,
+} from '../utils/dto/infinity-pagination-response.dto';
+import { infinityPagination } from '../utils/infinity-pagination';
+import { FindAllSmsDto } from './dto/find-all-sms.dto';
 
-@ApiTags('短信服务')
-@Controller('sms')
+@ApiTags('Sms')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
+@Controller({
+  path: 'sms',
+  version: '1',
+})
 export class SmsController {
   constructor(private readonly smsService: SmsService) {}
 
-  @Post('verification/send')
-  @ApiOperation({ summary: '发送验证码' })
-  async sendVerificationCode(@Body() dto: SendVerificationDto): Promise<void> {
-    await this.smsService.sendVerificationCode(dto.phoneNumber);
+  @Post()
+  @ApiCreatedResponse({
+    type: Sms,
+  })
+  create(@Body() createSmsDto: CreateSmsDto) {
+    return this.smsService.create(createSmsDto);
   }
 
-  @Post('verification/verify')
-  @ApiOperation({ summary: '验证验证码' })
-  async verifyCode(@Body() dto: VerifyCodeDto): Promise<boolean> {
-    return this.smsService.verifyCode(dto.phoneNumber, dto.code);
+  @Get()
+  @ApiOkResponse({
+    type: InfinityPaginationResponse(Sms),
+  })
+  async findAll(
+    @Query() query: FindAllSmsDto,
+  ): Promise<InfinityPaginationResponseDto<Sms>> {
+    const page = query?.page ?? 1;
+    let limit = query?.limit ?? 10;
+    if (limit > 50) {
+      limit = 50;
+    }
+
+    return infinityPagination(
+      await this.smsService.findAllWithPagination({
+        paginationOptions: {
+          page,
+          limit,
+        },
+      }),
+      { page, limit },
+    );
   }
 
-  @Post('batch-notification')
-  @ApiOperation({ summary: '发送批量通知短信' })
-  async sendBatchNotification(@Body() dto: SendBatchSmsDto): Promise<void> {
-    await this.smsService.sendBatchNotification(dto);
+  @Get(':id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Sms,
+  })
+  findById(@Param('id') id: string) {
+    return this.smsService.findById(id);
   }
 
-  // 其他端点...
+  @Patch(':id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  @ApiOkResponse({
+    type: Sms,
+  })
+  update(@Param('id') id: string, @Body() updateSmsDto: UpdateSmsDto) {
+    return this.smsService.update(id, updateSmsDto);
+  }
+
+  @Delete(':id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+  })
+  remove(@Param('id') id: string) {
+    return this.smsService.remove(id);
+  }
 }
