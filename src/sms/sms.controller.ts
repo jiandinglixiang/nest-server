@@ -1,37 +1,12 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiParam,
-} from '@nestjs/swagger';
-import {
-  InfinityPaginationResponse,
-  InfinityPaginationResponseDto,
-} from '../utils/dto/infinity-pagination-response.dto';
-import { infinityPagination } from '../utils/infinity-pagination';
-import { Sms } from './domain/sms';
-import { CreateSmsDto } from './dto/create-sms.dto';
-import { FindAllSmsDto } from './dto/find-all-sms.dto';
-import { UpdateSmsDto } from './dto/update-sms.dto';
-import { SmsService } from './sms.service';
-import { Role } from '../roles/domain/role';
+import { ApiOkResponse } from '@nestjs/swagger';
 import { Roles } from '../roles/roles.decorator';
-import { RolesGuard } from '../roles/roles.guard';
 import { RoleEnum } from '../roles/roles.enum';
-import { BatchSendDto, SendDto } from './dto/send.dto';
+import { RolesGuard } from '../roles/roles.guard';
 import { SendResDto } from './dto/send-res.dto';
+import { BatchSendDto, SendDto } from './dto/send.dto';
+import { SmsService } from './sms.service';
 
 @Controller({
   path: 'sms',
@@ -46,7 +21,9 @@ export class SmsController {
   })
   async send(@Body() dto: SendDto): Promise<SendResDto> {
     // 发送短信
-    return await this.smsService.send(dto);
+    return await this.smsService.send({
+      phoneNumbers: [dto.phoneNumber],
+    });
   }
 
   @Post('send-batch')

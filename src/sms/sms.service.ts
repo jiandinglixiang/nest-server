@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSmsDto } from './dto/create-sms.dto';
-import { UpdateSmsDto } from './dto/update-sms.dto';
-import { SmsRepository } from './infrastructure/persistence/sms.repository';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { Sms } from './domain/sms';
+import { CreateSmsDto } from './dto/create-sms.dto';
+import { SendResDto } from './dto/send-res.dto';
+import { BatchSendDto } from './dto/send.dto';
+import { UpdateSmsDto } from './dto/update-sms.dto';
+import { SmsRepository } from './infrastructure/persistence/sms.repository';
 
 @Injectable()
 export class SmsService {
   constructor(
-    // Dependencies here
+    // 这里的依赖关系
     private readonly smsRepository: SmsRepository,
   ) {}
 
@@ -79,7 +81,16 @@ export class SmsService {
     return this.smsRepository.remove(id);
   }
 
+  send(dto: BatchSendDto): Promise<SendResDto> {
+    // 发送短信
+    console.log(dto);
+    return Promise.resolve({
+      randomCode: '123456',
+    });
+  }
+
   verifyCode(phoneNumber: any, code: string) {
+    // 验证短信
     console.log(phoneNumber, code);
     return true;
   }

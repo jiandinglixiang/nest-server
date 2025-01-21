@@ -14,9 +14,9 @@ export class SendDto {
 export class BatchSendDto {
   @ApiProperty({
     description: '手机号码',
-    example: '13800138000',
+    example: ['13800138000', '13800138001'],
   })
-  @IsMobilePhone('zh-CN')
+  @IsMobilePhone('zh-CN', {}, { each: true })
   @IsNotEmpty()
-  phoneNumber: string;
+  phoneNumbers: string[];
 }
