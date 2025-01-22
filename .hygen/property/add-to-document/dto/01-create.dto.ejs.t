@@ -15,6 +15,8 @@ after: export class Create<%= name %>Dto
           Number,
         <% } else if (type === 'boolean') { -%>
           Boolean,
+        <% } else if (type === 'Date') { -%>
+          Date,
         <% } -%>
       <% } else if (kind === 'reference' || kind === 'duplication') { -%>
         <% if (referenceType === 'oneToMany' || referenceType === 'manyToMany') { -%>

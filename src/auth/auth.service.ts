@@ -14,6 +14,7 @@ import { AllConfigType } from '../config/config.type';
 import { PasswordsService } from '../passwords/passwords.service';
 import { Session } from '../session/domain/session';
 import { SessionService } from '../session/session.service';
+import { SmsService } from '../sms/sms.service';
 import { StatusEnum } from '../statuses/statuses.enum';
 import { User } from '../users/domain/user';
 import { UsersService } from '../users/users.service';
@@ -25,7 +26,6 @@ import { AuthUpdateDto } from './dto/auth-update.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { JwtPayloadType } from './strategies/types/jwt-payload.type';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
-import { SmsService } from '../sms/sms.service';
 
 @Injectable()
 export class AuthService {
@@ -47,9 +47,7 @@ export class AuthService {
         },
       });
     }
-    const user = await this.usersService.findByUser({
-      phoneNumber: loginDto.phoneNumber,
-    });
+    const user = await this.usersService.findByPhone(loginDto.phoneNumber);
 
     if (!user) {
       throw new UnprocessableEntityException({
@@ -122,9 +120,7 @@ export class AuthService {
   }
 
   async register(dto: AuthRegisterLoginDto): Promise<void> {
-    const user = await this.usersService.findByUser({
-      phoneNumber: dto.phoneNumber,
-    });
+    const user = await this.usersService.findByPhone(dto.phoneNumber);
     // 如果用户存在，则抛出错误
     if (user) {
       throw new UnprocessableEntityException({
@@ -142,7 +138,6 @@ export class AuthService {
 
     await this.usersService.create({
       phoneNumber: dto.phoneNumber,
-      areaCode: '86',
       nickname:
         dto.phoneNumber.slice(0, 3) + '****' + dto.phoneNumber.slice(-4),
       role: {
@@ -151,13 +146,15 @@ export class AuthService {
       status: {
         id: StatusEnum.inactive,
       },
+      birthTime: new Date(),
+      gender: 0,
+      faceUrl: '',
+      areaCode: '86',
     });
   }
 
   async forgotPassword(dto: AuthForgotPasswordDto): Promise<void> {
-    const user = await this.usersService.findByUser({
-      phoneNumber: dto.phoneNumber,
-    });
+    const user = await this.usersService.findByPhone(dto.phoneNumber);
 
     if (!user) {
       throw new UnprocessableEntityException({
@@ -209,9 +206,7 @@ export class AuthService {
       });
     }
 
-    const user = await this.usersService.findByUser({
-      id: userId,
-    });
+    const user = await this.usersService.findById(userId);
 
     if (!user) {
       throw new UnprocessableEntityException({
@@ -232,10 +227,8 @@ export class AuthService {
     });
   }
 
-  async me(userJwtPayload: JwtPayloadType): Promise<NullableType<User>> {
-    return this.usersService.findByUser({
-      id: userJwtPayload.id,
-    });
+  me(userJwtPayload: JwtPayloadType): Promise<NullableType<User>> {
+    return this.usersService.findById(userJwtPayload.id);
   }
 
   async update(
@@ -264,9 +257,7 @@ export class AuthService {
       .update(randomStringGenerator())
       .digest('hex');
 
-    const user = await this.usersService.findByUser({
-      id: session.user.id,
-    });
+    const user = await this.usersService.findById(session.user.id);
 
     if (!user?.role) {
       throw new UnauthorizedException();

@@ -1,22 +1,7 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+// Don't forget to use the class-validator decorators in the DTO properties.
+// import { Allow } from 'class-validator';
+
+import { PartialType } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto';
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @ApiProperty({
-    type: String,
-    description: '用户ID',
-  })
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-
-  @ApiProperty({
-    type: Date,
-    description: 'deletedAt Time',
-    example: '2023-01-02T00:00:00Z',
-  })
-  @IsOptional()
-  @IsDate()
-  deletedAt?: Date;
-}
+export class UpdateUserDto extends PartialType(CreateUserDto) {}

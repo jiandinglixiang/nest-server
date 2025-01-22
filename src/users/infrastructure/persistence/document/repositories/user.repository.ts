@@ -1,30 +1,30 @@
 import { Injectable } from '@nestjs/common';
-
+import { NullableType } from '../../../../../utils/types/nullable.type';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { NullableType } from '../../../../../utils/types/nullable.type';
-import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
-import { User } from '../../../../domain/user';
-import { FilterUserDto, SortUserDto } from '../../../../dto/query-user.dto';
-import { UserRepository } from '../../user.repository';
 import { UserSchemaClass } from '../entities/user.schema';
+import { UserRepository } from '../../user.repository';
+import { User } from '../../../../domain/user';
 import { UserMapper } from '../mappers/user.mapper';
+import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { FilterUserDto } from '../../../../dto/filter-user-dto';
+import { SortUserDto } from '../../../../dto/sort-user-dto';
 
 @Injectable()
-export class UsersDocumentRepository implements UserRepository {
+export class UserDocumentRepository implements UserRepository {
   constructor(
     @InjectModel(UserSchemaClass.name)
-    private readonly usersModel: Model<UserSchemaClass>,
+    private readonly userModel: Model<UserSchemaClass>,
   ) {}
 
   async create(data: User): Promise<User> {
     const persistenceModel = UserMapper.toPersistence(data);
-    const createdUser = new this.usersModel(persistenceModel);
-    const userObject = await createdUser.save();
-    return UserMapper.toDomain(userObject);
+    const createdEntity = new this.userModel(persistenceModel);
+    const entityObject = await createdEntity.save();
+    return UserMapper.toDomain(entityObject);
   }
 
-  async findManyWithPagination({
+  async findAllWithPagination({
     filterOptions,
     sortOptions,
     paginationOptions,
@@ -34,13 +34,21 @@ export class UsersDocumentRepository implements UserRepository {
     paginationOptions: IPaginationOptions;
   }): Promise<User[]> {
     const where: FilterQuery<UserSchemaClass> = {};
-    if (filterOptions?.roles?.length) {
-      where['role._id'] = {
-        $in: filterOptions.roles.map((role) => role.id.toString()),
-      };
+
+    if (filterOptions) {
+      Object.keys(filterOptions).forEach((key) => {
+        if (!filterOptions[key]) return;
+        if (key === 'role') {
+          where['role._id'] = {
+            $in: filterOptions[key]?.id,
+          };
+        } else {
+          where[key] = filterOptions[key];
+        }
+      });
     }
 
-    const userObjects = await this.usersModel
+    const userObjects = await this.userModel
       .find(where)
       .sort(
         sortOptions?.reduce(
@@ -59,48 +67,51 @@ export class UsersDocumentRepository implements UserRepository {
   }
 
   async findById(id: User['id']): Promise<NullableType<User>> {
-    const userObject = await this.usersModel.findById(id);
-    return userObject ? UserMapper.toDomain(userObject) : null;
+    const entityObject = await this.userModel.findById(id);
+    return entityObject ? UserMapper.toDomain(entityObject) : null;
   }
 
-  async findByEmail(email: User['email']): Promise<NullableType<User>> {
-    const userObject = await this.usersModel.findOne({ email });
-    return userObject ? UserMapper.toDomain(userObject) : null;
+  async findByIds(ids: User['id'][]): Promise<User[]> {
+    const entityObjects = await this.userModel.find({ _id: { $in: ids } });
+    return entityObjects.map((entityObject) =>
+      UserMapper.toDomain(entityObject),
+    );
   }
 
   async findByPhone(
     phoneNumber: User['phoneNumber'],
   ): Promise<NullableType<User>> {
-    const userObject = await this.usersModel.findOne({ phoneNumber });
+    const userObject = await this.userModel.findOne({ phoneNumber });
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
-  async update(id: User['id'], payload: Partial<User>): Promise<User | null> {
+  async update(
+    id: User['id'],
+    payload: Partial<User>,
+  ): Promise<NullableType<User>> {
     const clonedPayload = { ...payload };
     delete clonedPayload.id;
 
-    const filter = { _id: id };
-    const user = await this.usersModel.findOne(filter);
+    const filter = { _id: id.toString() };
+    const entity = await this.userModel.findOne(filter);
 
-    if (!user) {
-      return null;
+    if (!entity) {
+      throw new Error('Record not found');
     }
 
-    const userObject = await this.usersModel.findOneAndUpdate(
+    const entityObject = await this.userModel.findOneAndUpdate(
       filter,
       UserMapper.toPersistence({
-        ...UserMapper.toDomain(user),
+        ...UserMapper.toDomain(entity),
         ...clonedPayload,
       }),
       { new: true },
     );
 
-    return userObject ? UserMapper.toDomain(userObject) : null;
+    return entityObject ? UserMapper.toDomain(entityObject) : null;
   }
 
   async remove(id: User['id']): Promise<void> {
-    await this.usersModel.deleteOne({
-      _id: id,
-    });
+    await this.userModel.deleteOne({ _id: id });
   }
 }

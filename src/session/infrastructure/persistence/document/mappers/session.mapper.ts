@@ -1,4 +1,3 @@
-import { UserSchemaClass } from '../../../../../users/infrastructure/persistence/document/entities/user.schema';
 import { UserMapper } from '../../../../../users/infrastructure/persistence/document/mappers/user.mapper';
 import { Session } from '../../../../domain/session';
 import { SessionSchemaClass } from '../entities/session.schema';
@@ -19,13 +18,13 @@ export class SessionMapper {
     return domainEntity;
   }
   static toPersistence(domainEntity: Session): SessionSchemaClass {
-    const persistenceSchema = new UserSchemaClass();
-    persistenceSchema._id = domainEntity.user.id.toString();
     const sessionEntity = new SessionSchemaClass();
-    if (domainEntity.id && typeof domainEntity.id === 'string') {
+    if (domainEntity.id) {
       sessionEntity._id = domainEntity.id;
     }
-    sessionEntity.user = persistenceSchema;
+    if (domainEntity.user) {
+      sessionEntity.user = UserMapper.toPersistence(domainEntity.user);
+    }
     sessionEntity.hash = domainEntity.hash;
     sessionEntity.createdAt = domainEntity.createdAt;
     sessionEntity.updatedAt = domainEntity.updatedAt;

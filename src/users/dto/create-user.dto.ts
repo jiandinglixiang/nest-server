@@ -1,100 +1,97 @@
 import { StatusDto } from '../../statuses/dto/status.dto';
 
-import { ApiProperty } from '@nestjs/swagger';
+import { RoleDto } from '../../roles/dto/role.dto';
 
-import { Type } from 'class-transformer';
 import {
-  Equals,
-  IsDate,
-  IsEmail,
-  IsEnum,
+  // decorators here
+
+  IsString,
+  IsOptional,
+  IsNumber,
+  ValidateNested,
+  IsNotEmptyObject,
   IsMobilePhone,
   IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsUrl,
-  Length,
+  Equals,
+  IsDate,
 } from 'class-validator';
-import { RoleDto } from '../../roles/dto/role.dto';
+
+import {
+  // decorators here
+  ApiProperty,
+} from '@nestjs/swagger';
+
+import {
+  // decorators here
+  Type,
+} from 'class-transformer';
 
 export class CreateUserDto {
   @ApiProperty({
-    type: String,
-    description: 'Phone Number',
-    example: '15577648264',
+    required: true,
+    type: () => StatusDto,
+  })
+  @ValidateNested()
+  @Type(() => StatusDto)
+  @IsNotEmptyObject()
+  status: StatusDto;
+
+  @ApiProperty({
+    required: true,
+    type: () => RoleDto,
+  })
+  @ValidateNested()
+  @Type(() => RoleDto)
+  @IsNotEmptyObject()
+  role: RoleDto;
+
+  @ApiProperty({
+    required: false,
+    type: () => Date,
+  })
+  @IsOptional()
+  @IsDate()
+  birthTime: Date;
+
+  @ApiProperty({
+    required: false,
+    type: () => Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  gender: number;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  faceUrl: string;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @IsString()
+  nickname: string;
+
+  @ApiProperty({
+    required: false,
+    type: () => String,
+  })
+  @IsOptional()
+  @Equals('86')
+  areaCode: string;
+
+  @ApiProperty({
+    required: true,
+    type: () => String,
   })
   @IsMobilePhone('zh-CN')
   @IsNotEmpty()
   phoneNumber: string;
 
-  @ApiProperty({
-    type: String,
-    description: 'Area Code',
-    example: '86',
-  })
-  @Equals('86')
-  areaCode: '86';
-
-  @ApiProperty({
-    type: String,
-    description: 'Email',
-    example: 'test@example.com',
-  })
-  @IsEmail()
-  @IsOptional()
-  email?: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Nickname',
-  })
-  @Length(2, 10)
-  @IsOptional()
-  nickname?: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Face URL',
-  })
-  @IsUrl()
-  @IsOptional()
-  faceUrl?: string;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Gender',
-    enum: [0, 1],
-  })
-  @IsEnum([0, 1])
-  @IsOptional()
-  gender?: 0 | 1;
-
-  @ApiProperty({
-    type: Date,
-    description: 'Birth Time',
-    example: '1990-01-01',
-  })
-  @IsDate()
-  @IsOptional()
-  birthTime?: Date;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Level',
-  })
-  @IsNumber()
-  @IsOptional()
-  level?: number;
-
-  @ApiProperty({ type: RoleDto })
-  @Type(() => RoleDto)
-  @IsNotEmpty()
-  role: RoleDto;
-
-  @ApiProperty({
-    type: StatusDto,
-  })
-  @Type(() => StatusDto)
-  @IsNotEmpty()
-  status: StatusDto;
+  // Don't forget to use the class-validator decorators in the DTO properties.
 }

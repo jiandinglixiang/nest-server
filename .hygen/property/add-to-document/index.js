@@ -66,12 +66,12 @@ module.exports = {
               message: 'Select kind of type',
               choices: [
                 {
-                  message: 'Primitive (string, number, etc)',
+                  message: '原始 (string, number,Date, etc)',
                   value: 'primitive',
                 },
-                { message: 'Reference to entity', value: 'reference' },
+                { message: '参考实体', value: 'reference' },
                 {
-                  message: 'Duplication data from entity',
+                  message: '来自实体的重复数据',
                   value: 'duplication',
                 },
               ],
@@ -158,7 +158,7 @@ module.exports = {
                   type: 'select',
                   name: 'type',
                   message: 'Property type',
-                  choices: ['string', 'number', 'boolean'],
+                  choices: ['string', 'number', 'boolean', 'Date'],
                 });
               }),
             );

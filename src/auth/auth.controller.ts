@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { User } from '../users/domain/user';
 import { NullableType } from '../utils/types/nullable.type';
 import { AuthService } from './auth.service';
@@ -86,6 +86,7 @@ export class AuthController {
   @ApiOkResponse({
     type: User,
   })
+  @ApiBearerAuth()
   public me(@Request() request): Promise<NullableType<User>> {
     return this.service.me(request.user);
   }
@@ -95,6 +96,7 @@ export class AuthController {
   @ApiOkResponse({
     type: User,
   })
+  @ApiBearerAuth()
   public update(
     @Request() request,
     @Body() userDto: AuthUpdateDto,
@@ -104,6 +106,7 @@ export class AuthController {
 
   @Delete('me')
   @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   public async delete(@Request() request): Promise<void> {
     return this.service.softDelete(request.user);
   }

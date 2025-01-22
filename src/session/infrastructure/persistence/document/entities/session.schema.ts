@@ -13,7 +13,11 @@ export type SessionSchemaDocument = HydratedDocument<SessionSchemaClass>;
   },
 })
 export class SessionSchemaClass extends EntityDocumentHelper {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'UserSchemaClass' })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UserSchemaClass',
+    autopopulate: true,
+  })
   user: UserSchemaClass;
 
   @Prop()

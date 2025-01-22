@@ -1,41 +1,42 @@
 import { Status } from '../statuses/domain/status';
 
+import { Role } from '../roles/domain/role';
+
 import {
   HttpStatus,
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { Role } from '../roles/domain/role';
-import { RoleEnum, RoleEnumKey } from '../roles/roles.enum';
-import { StatusEnum, StatusEnumKey } from '../statuses/statuses.enum';
-import { NullableType } from '../utils/types/nullable.type';
+import { RoleEnum } from '../roles/roles.enum';
 import { IPaginationOptions } from '../utils/types/pagination-options';
 import { User } from './domain/user';
 import { CreateUserDto } from './dto/create-user.dto';
-import { FilterUserDto, FindUserDto, SortUserDto } from './dto/query-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './infrastructure/persistence/user.repository';
+import { StatusEnum } from '../statuses/statuses.enum';
+import { FilterUserDto } from './dto/filter-user-dto';
+import { SortUserDto } from './dto/sort-user-dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UserRepository) {}
+  constructor(
+    // Dependencies here
+    private readonly userRepository: UserRepository,
+  ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto) {
     // Do not remove comment below.
     // <creating-property />
-
-    if (createUserDto.phoneNumber) {
-      const userObject = await this.usersRepository.findByPhone(
-        createUserDto.phoneNumber,
-      );
-      if (userObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            phoneNumber: '已存注册',
-          },
-        });
-      }
+    const userObject = await this.userRepository.findByPhone(
+      createUserDto.phoneNumber,
+    );
+    if (userObject) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          phoneNumber: '已注册',
+        },
+      });
     }
     if (createUserDto.role?.id) {
       const roleObject = Object.values(RoleEnum)
@@ -64,33 +65,36 @@ export class UsersService {
       }
     }
 
-    const role: Role = {
-      id: createUserDto.role.id,
-      name: RoleEnum[createUserDto.role.id] as RoleEnumKey,
-    };
-
-    const status: Status = {
+    const status = {
       id: createUserDto.status.id,
-      name: StatusEnum[createUserDto.status.id] as StatusEnumKey,
     };
 
-    return this.usersRepository.create({
+    const role = {
+      id: createUserDto.role.id,
+    };
+
+    return this.userRepository.create({
       // Do not remove comment below.
       // <creating-property-payload />
-      ...createUserDto,
-      role,
       status,
-      gender: createUserDto.gender || 0,
-      email: createUserDto.email || '',
-      phoneNumber: createUserDto.phoneNumber || '',
-      nickname: createUserDto.nickname || '',
-      faceUrl: createUserDto.faceUrl || '',
-      birthTime: createUserDto.birthTime || new Date(),
-      level: createUserDto.level || 0,
+
+      role,
+
+      birthTime: createUserDto.birthTime,
+
+      gender: createUserDto.gender,
+
+      faceUrl: createUserDto.faceUrl,
+
+      nickname: createUserDto.nickname,
+
+      areaCode: createUserDto.areaCode,
+
+      phoneNumber: createUserDto.phoneNumber,
     });
   }
 
-  findManyWithPagination({
+  findAllWithPagination({
     filterOptions,
     sortOptions,
     paginationOptions,
@@ -98,51 +102,47 @@ export class UsersService {
     filterOptions?: FilterUserDto | null;
     sortOptions?: SortUserDto[] | null;
     paginationOptions: IPaginationOptions;
-  }): Promise<User[]> {
-    return this.usersRepository.findManyWithPagination({
+  }) {
+    return this.userRepository.findAllWithPagination({
       filterOptions,
       sortOptions,
       paginationOptions,
     });
   }
 
-  findByUser(findUserDto: FindUserDto): Promise<NullableType<User>> {
-    if (findUserDto.id) {
-      return this.usersRepository.findById(findUserDto.id);
-    }
-    if (findUserDto.phoneNumber) {
-      return this.usersRepository.findByPhone(findUserDto.phoneNumber);
-    }
-    if (findUserDto.email) {
-      return this.usersRepository.findByEmail(findUserDto.email);
-    }
-    throw new UnprocessableEntityException({
-      status: HttpStatus.UNPROCESSABLE_ENTITY,
-      errors: {
-        phone: '参数错误',
-      },
-    });
+  findById(id: User['id']) {
+    return this.userRepository.findById(id);
+  }
+
+  findByIds(ids: User['id'][]) {
+    return this.userRepository.findByIds(ids);
+  }
+
+  findByPhone(phoneNumber: User['phoneNumber']) {
+    return this.userRepository.findByPhone(phoneNumber);
   }
 
   async update(
     id: User['id'],
+
     updateUserDto: UpdateUserDto,
-  ): Promise<User | null> {
+  ) {
     // Do not remove comment below.
     // <updating-property />
     let phoneNumber: string | undefined = undefined;
 
     if (updateUserDto.phoneNumber) {
       // 检查电话是否存在
-      const userObject = await this.usersRepository.findByPhone(
+      const userObject = await this.userRepository.findByPhone(
         updateUserDto.phoneNumber,
       );
 
-      if (userObject && userObject.id !== updateUserDto.id) {
+      if (userObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            phone: '电话已存在',
+            phoneNumber:
+              userObject.id === id ? '与当前使用电话一致' : '电话已被使用',
           },
         });
       }
@@ -150,10 +150,7 @@ export class UsersService {
       phoneNumber = updateUserDto.phoneNumber;
     }
 
-    let role: Role | undefined = undefined;
-
     if (updateUserDto.role?.id) {
-      // 检查角色是否存在
       const roleObject = Object.values(RoleEnum)
         .map(String)
         .includes(String(updateUserDto.role.id));
@@ -161,19 +158,11 @@ export class UsersService {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            role: '角色不存在',
+            role: 'roleNotExists',
           },
         });
       }
-
-      role = {
-        id: updateUserDto.role.id,
-        name: RoleEnum[updateUserDto.role.id] as RoleEnumKey,
-      };
     }
-
-    let status: Status | undefined = undefined;
-
     if (updateUserDto.status?.id) {
       const statusObject = Object.values(StatusEnum)
         .map(String)
@@ -182,24 +171,45 @@ export class UsersService {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            status: '状态不存在',
+            status: 'statusNotExists',
           },
         });
       }
+    }
 
+    let status: Status | undefined = undefined;
+
+    if (updateUserDto.status) {
       status = {
         id: updateUserDto.status.id,
-        name: StatusEnum[updateUserDto.status.id] as StatusEnumKey,
       };
     }
 
-    return this.usersRepository.update(id, {
+    const role: Role = {
+      id: updateUserDto.role?.id ?? RoleEnum.user,
+    };
+
+    return this.userRepository.update(id, {
       // Do not remove comment below.
       // <updating-property-payload />
-      ...updateUserDto,
       status,
-      phoneNumber,
+
       role,
+      phoneNumber,
+
+      birthTime: updateUserDto.birthTime,
+
+      gender: updateUserDto.gender,
+
+      faceUrl: updateUserDto.faceUrl,
+
+      nickname: updateUserDto.nickname,
+
+      areaCode: updateUserDto.areaCode,
     });
+  }
+
+  remove(id: User['id']) {
+    return this.userRepository.remove(id);
   }
 }
