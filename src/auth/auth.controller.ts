@@ -32,52 +32,48 @@ export class AuthController {
     type: LoginResponseDto,
   })
   @Post('login')
-  public login(@Body() loginDto: AuthLoginDto): Promise<LoginResponseDto> {
+  login(@Body() loginDto: AuthLoginDto): Promise<LoginResponseDto> {
     return this.service.validateLogin(loginDto);
   }
 
-  @ApiOkResponse()
   @Post('register')
-  async register(@Body() createUserDto: AuthRegisterLoginDto): Promise<void> {
+  async register(@Body() createUserDto: AuthRegisterLoginDto) {
     return this.service.register(createUserDto);
   }
 
-  @ApiOkResponse()
   @Post('forgot-password')
-  async forgotPassword(
-    @Body() forgotPasswordDto: AuthForgotPasswordDto,
-  ): Promise<void> {
+  async forgotPassword(@Body() forgotPasswordDto: AuthForgotPasswordDto) {
     return this.service.forgotPassword(forgotPasswordDto);
   }
 
-  @ApiOkResponse()
+  @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Post('reset-password')
-  resetPassword(@Body() resetPasswordDto: AuthResetPasswordDto): Promise<void> {
+  resetPassword(@Body() resetPasswordDto: AuthResetPasswordDto) {
     return this.service.resetPassword(
       resetPasswordDto.hash,
       resetPasswordDto.password,
     );
   }
 
+  @ApiBearerAuth()
   @ApiOkResponse({
     type: RefreshResponseDto,
   })
   @Post('refresh')
   @UseGuards(AuthGuard('jwt-refresh'))
-  public refresh(@Request() request): Promise<RefreshResponseDto> {
+  refresh(@Request() request): Promise<RefreshResponseDto> {
     return this.service.refreshToken({
       sessionId: request.user.sessionId,
       hash: request.user.hash,
     });
   }
 
+  @ApiBearerAuth()
   @Post('logout')
   @UseGuards(AuthGuard('jwt'))
-  public async logout(@Request() request): Promise<void> {
-    await this.service.logout({
-      sessionId: request.user.sessionId,
-    });
+  async logout(@Request() request) {
+    await this.service.logout(request.user.id);
   }
 
   //  me
@@ -87,7 +83,7 @@ export class AuthController {
     type: User,
   })
   @ApiBearerAuth()
-  public me(@Request() request): Promise<NullableType<User>> {
+  me(@Request() request): Promise<NullableType<User>> {
     return this.service.me(request.user);
   }
 
@@ -97,7 +93,7 @@ export class AuthController {
     type: User,
   })
   @ApiBearerAuth()
-  public update(
+  update(
     @Request() request,
     @Body() userDto: AuthUpdateDto,
   ): Promise<NullableType<User>> {
@@ -107,7 +103,7 @@ export class AuthController {
   @Delete('me')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  public async delete(@Request() request): Promise<void> {
-    return this.service.softDelete(request.user);
+  async delete(@Request() request) {
+    await this.service.softDelete(request.user);
   }
 }

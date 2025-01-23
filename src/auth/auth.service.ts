@@ -227,18 +227,6 @@ export class AuthService {
     });
   }
 
-  me(userJwtPayload: JwtPayloadType): Promise<NullableType<User>> {
-    return this.usersService.findById(userJwtPayload.id);
-  }
-
-  async update(
-    userJwtPayload: JwtPayloadType,
-    userDto: AuthUpdateDto,
-  ): Promise<NullableType<User>> {
-    // 更新用户资料
-    return await this.usersService.update(userJwtPayload.id, userDto);
-  }
-
   async refreshToken(
     data: Pick<JwtRefreshPayloadType, 'sessionId' | 'hash'>,
   ): Promise<Omit<LoginResponseDto, 'user'>> {
@@ -283,12 +271,27 @@ export class AuthService {
     };
   }
 
-  async softDelete(user: User): Promise<void> {
-    await console.log(user);
+  me(userJwtPayload: JwtPayloadType): Promise<NullableType<User>> {
+    return this.usersService.findById(userJwtPayload.id);
   }
 
-  async logout(data: Pick<JwtRefreshPayloadType, 'sessionId'>) {
-    return this.sessionService.deleteById(data.sessionId);
+  async update(
+    userJwtPayload: JwtPayloadType,
+    userDto: AuthUpdateDto,
+  ): Promise<NullableType<User>> {
+    // 更新用户资料
+    return await this.usersService.update(userJwtPayload.id, userDto);
+  }
+
+  async logout(userId: User['id']) {
+    return this.sessionService.deleteByUserId({
+      userId,
+    });
+  }
+
+  async softDelete(user: JwtPayloadType): Promise<void> {
+    await this.sessionService.deleteById(user.sessionId);
+    await this.usersService.remove(user.id);
   }
 
   private async getTokensData(data: {

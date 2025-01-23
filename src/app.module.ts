@@ -15,24 +15,33 @@ import { SmsModule } from './sms/sms.module';
 import { UsersModule } from './users/users.module';
 import smsConfig from './sms/config/sms.config';
 
-const infrastructureDatabaseModule = MongooseModule.forRootAsync({
-  useClass: MongooseConfigService,
-});
+import { ImServersModule } from './im-servers/im-servers.module';
+import imServerConfig from './im-servers/config/im-server.config';
 
 @Module({
   imports: [
+    MongooseModule.forRootAsync({
+      useClass: MongooseConfigService,
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, authConfig, appConfig, fileConfig, smsConfig],
+      load: [
+        databaseConfig,
+        authConfig,
+        appConfig,
+        fileConfig,
+        smsConfig,
+        imServerConfig,
+      ],
       envFilePath: ['.env'],
     }),
     CacheModule.register({
-      global: true,
+      isGlobal: true,
       ttl: 1000 * 60 * 5,
       max: 100,
     }),
+    ImServersModule,
     SmsModule,
-    infrastructureDatabaseModule,
     AuthModule,
     UsersModule,
     FilesModule,
